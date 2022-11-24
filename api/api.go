@@ -1,10 +1,11 @@
 package api
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/fulldump/box"
 
+	"github.com/fulldump/tailon/glueauth"
 	"github.com/fulldump/tailon/statics"
 )
 
@@ -16,8 +17,8 @@ func Build(version, staticsDir string) *box.B {
 
 	v1.Resource("/queues").
 		WithActions(
-			box.Get(func() (string, error) {
-				return "list queues", fmt.Errorf("soy un error")
+			box.Get(func() string {
+				return "list queues"
 			}),
 			box.Post(func() string {
 				return "create queue"
@@ -43,6 +44,12 @@ func Build(version, staticsDir string) *box.B {
 	b.Resource("/release").
 		WithActions(box.Get(func() string {
 			return version
+		}))
+
+	b.Resource("/me").
+		WithInterceptors(glueauth.Require).
+		WithActions(box.Get(func(ctx context.Context) *glueauth.GlueAuthentication {
+			return glueauth.GetAuth(ctx)
 		}))
 
 	// Mount statics
