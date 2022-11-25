@@ -1,7 +1,7 @@
 # Tailon
 
 <p align="center">
-<img src="https://github.com/fulldump/tailon/actions/workflows/go.yml/badge.svg">
+<a href="https://github.com/fulldump/tailon/actions/workflows/go.yml"><img src="https://github.com/fulldump/tailon/actions/workflows/go.yml/badge.svg"></a>
 <a href="https://goreportcard.com/report/github.com/fulldump/tailon"><img src="https://goreportcard.com/badge/github.com/fulldump/tailon"></a>
 <a href="https://godoc.org/github.com/fulldump/tailon"><img src="https://godoc.org/github.com/fulldump/tailon?status.svg" alt="GoDoc"></a>
 </p>
