@@ -9,6 +9,7 @@ import (
 	"github.com/fulldump/goconfig"
 
 	"github.com/fulldump/tailon/api"
+	"github.com/fulldump/tailon/queue"
 )
 
 var VERSION = "dev"
@@ -31,7 +32,9 @@ func main() {
 		os.Exit(0)
 	}
 
-	b := api.Build(VERSION, c.Statics)
+	queueService := queue.NewMemoryService()
+
+	b := api.Build(VERSION, c.Statics, queueService)
 
 	b.WithInterceptors(
 		api.AccessLog(log.Default()),

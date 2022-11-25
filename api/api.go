@@ -6,10 +6,11 @@ import (
 	"github.com/fulldump/box"
 
 	"github.com/fulldump/tailon/glueauth"
+	"github.com/fulldump/tailon/queue"
 	"github.com/fulldump/tailon/statics"
 )
 
-func Build(version, staticsDir string) *box.B {
+func Build(version, staticsDir string, qs queue.Service) *box.B {
 
 	b := box.NewBox()
 

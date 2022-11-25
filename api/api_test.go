@@ -5,13 +5,17 @@ import (
 
 	"github.com/fulldump/apitest"
 	"github.com/fulldump/biff"
+
+	"github.com/fulldump/tailon/queue"
 )
 
 func TestAcceptance(t *testing.T) {
 
 	biff.Alternative("Setup", func(a *biff.A) {
 
-		h := Build("test version", "")
+		qs := queue.NewMemoryService()
+
+		h := Build("test version", "", qs)
 
 		api := apitest.NewWithHandler(h)
 
