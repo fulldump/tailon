@@ -118,6 +118,8 @@ func RetrieveQueue(ctx context.Context, w http.ResponseWriter) (interface{}, err
 
 	if memq, ok := q.(*queue.MemoryQueue); ok {
 		result["len"] = len(memq.Queue)
+		result["reads"] = memq.Reads
+		result["writes"] = memq.Writes
 	}
 
 	return result, nil

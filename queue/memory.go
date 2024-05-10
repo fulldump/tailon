@@ -3,6 +3,7 @@ package queue
 import (
 	"fmt"
 	"sync"
+	"sync/atomic"
 )
 
 type MemoryService struct {
@@ -69,7 +70,9 @@ func (m *MemoryService) DeleteQueue(name string) error {
 }
 
 type MemoryQueue struct {
-	Queue chan JSON
+	Queue  chan JSON
+	Writes int64
+	Reads  int64
 }
 
 func NewMemoryQueue() *MemoryQueue {
@@ -80,6 +83,8 @@ func NewMemoryQueue() *MemoryQueue {
 
 func (m *MemoryQueue) Write(item JSON) error {
 
+	atomic.AddInt64(&m.Writes, 1)
+
 	m.Queue <- item // todo: make it sync?
 
 	return nil
@@ -88,6 +93,8 @@ func (m *MemoryQueue) Write(item JSON) error {
 func (m *MemoryQueue) Read() (JSON, error) {
 
 	item := <-m.Queue
+
+	atomic.AddInt64(&m.Reads, 1)
 
 	return item, nil
 }

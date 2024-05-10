@@ -52,8 +52,10 @@ func TestAcceptance(t *testing.T) {
 
 				biff.AssertEqual(res.StatusCode, http.StatusOK)
 				biff.AssertEqualJson(res.BodyJson(), JSON{
-					"name": "my-queue",
-					"len":  0,
+					"name":   "my-queue",
+					"len":    0,
+					"writes": 0,
+					"reads":  0,
 				})
 			})
 			biff.Alternative("Write messages", func(a *biff.A) {
