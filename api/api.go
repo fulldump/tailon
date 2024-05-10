@@ -106,13 +106,21 @@ func RetrieveQueue(ctx context.Context, w http.ResponseWriter) (interface{}, err
 
 	s := GetQueueService(ctx)
 
-	_, err := s.GetQueue(queueName)
+	result := map[string]any{
+		"name": queueName,
+	}
+
+	q, err := s.GetQueue(queueName)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound) // todo: check required!!
 		return nil, err
 	}
 
-	return queueName, nil
+	if memq, ok := q.(*queue.MemoryQueue); ok {
+		result["len"] = len(memq.Queue)
+	}
+
+	return result, nil
 }
 
 func Write(ctx context.Context, w http.ResponseWriter, r *http.Request) error {

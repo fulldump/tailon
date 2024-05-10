@@ -51,7 +51,10 @@ func TestAcceptance(t *testing.T) {
 				Save(res, "Retrieve queue", ``)
 
 				biff.AssertEqual(res.StatusCode, http.StatusOK)
-				biff.AssertEqualJson(res.BodyJson(), "my-queue")
+				biff.AssertEqualJson(res.BodyJson(), JSON{
+					"name": "my-queue",
+					"len":  0,
+				})
 			})
 			biff.Alternative("Write messages", func(a *biff.A) {
 
