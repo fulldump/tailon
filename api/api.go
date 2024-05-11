@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -37,6 +38,7 @@ func GetQueueService(ctx context.Context) queue.Service {
 
 type Client struct {
 	Id     string    `json:"id"`
+	Queue  string    `json:"queue"`
 	Start  time.Time `json:"start"`
 	IP     string    `json:"IP"`
 	Reads  int64     `json:"reads"`
@@ -154,8 +156,11 @@ func RetrieveQueue(ctx context.Context, w http.ResponseWriter) (interface{}, err
 
 func Write(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 
+	queueName := box.GetUrlParameter(ctx, "queue_id")
+
 	c := &Client{
 		Id:     uuid.New().String(),
+		Queue:  queueName,
 		Start:  time.Now(),
 		IP:     r.RemoteAddr,
 		Reads:  0,
@@ -172,7 +177,6 @@ func Write(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	}()
 
 	// duplicated code:
-	queueName := box.GetUrlParameter(ctx, "queue_id")
 	s := GetQueueService(ctx)
 	q, err := s.GetQueue(queueName)
 	if err != nil {
@@ -205,8 +209,11 @@ func Write(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 
 func Read(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 
+	queueName := box.GetUrlParameter(ctx, "queue_id")
+
 	c := &Client{
 		Id:     uuid.New().String(),
+		Queue:  queueName,
 		Start:  time.Now(),
 		IP:     r.RemoteAddr,
 		Reads:  0,
@@ -223,7 +230,6 @@ func Read(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	}()
 
 	// duplicated code:
-	queueName := box.GetUrlParameter(ctx, "queue_id")
 	s := GetQueueService(ctx)
 	q, err := s.GetQueue(queueName)
 	if err != nil {
@@ -243,6 +249,11 @@ func Read(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 
 	for limit > 0 {
 		limit--
+
+		if r.Close {
+			fmt.Println("CLOSED!!")
+			break
+		}
 
 		message, err := q.Read()
 		if err != nil {
