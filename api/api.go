@@ -58,7 +58,7 @@ func Build(version, staticsDir string, qs queue.Service) *box.B {
 
 				activeClientsMutex.RLock()
 				defer func() {
-					activeClientsMutex.Unlock()
+					activeClientsMutex.RUnlock()
 				}()
 				json.NewEncoder(w).Encode(activeClients)
 
