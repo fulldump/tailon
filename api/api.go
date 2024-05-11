@@ -6,8 +6,11 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"sync"
+	"time"
 
 	"github.com/fulldump/box"
+	"github.com/google/uuid"
 
 	"github.com/fulldump/tailon/glueauth"
 	"github.com/fulldump/tailon/queue"
@@ -32,11 +35,35 @@ func GetQueueService(ctx context.Context) queue.Service {
 	return ctx.Value(QueueServiceKey).(queue.Service)
 }
 
+type Client struct {
+	Id     string    `json:"id"`
+	Start  time.Time `json:"start"`
+	IP     string    `json:"IP"`
+	Reads  int64     `json:"reads"`
+	Writes int64     `json:"writes"`
+}
+
+var activeClients = map[string]*Client{}
+var activeClientsMutex = sync.RWMutex{}
+
 func Build(version, staticsDir string, qs queue.Service) *box.B {
 
 	b := box.NewBox()
 
 	v1 := b.Resource("/v1")
+
+	v1.Resource("/clients").
+		WithActions(
+			box.Get(func(w http.ResponseWriter) {
+
+				activeClientsMutex.RLock()
+				defer func() {
+					activeClientsMutex.Unlock()
+				}()
+				json.NewEncoder(w).Encode(activeClients)
+
+			}),
+		)
 
 	v1.Resource("/queues").
 		WithInterceptors(
@@ -127,6 +154,18 @@ func RetrieveQueue(ctx context.Context, w http.ResponseWriter) (interface{}, err
 
 func Write(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 
+	c := &Client{
+		Id:     uuid.New().String(),
+		Start:  time.Now(),
+		IP:     r.RemoteAddr,
+		Reads:  0,
+		Writes: 0,
+	}
+
+	activeClientsMutex.Lock()
+	activeClients[c.Id] = c
+	activeClientsMutex.Unlock()
+
 	// duplicated code:
 	queueName := box.GetUrlParameter(ctx, "queue_id")
 	s := GetQueueService(ctx)
@@ -153,11 +192,25 @@ func Write(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err // somme error writting to queue
 		}
+
+		c.Writes++
 	}
 
 }
 
 func Read(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+
+	c := &Client{
+		Id:     uuid.New().String(),
+		Start:  time.Now(),
+		IP:     r.RemoteAddr,
+		Reads:  0,
+		Writes: 0,
+	}
+
+	activeClientsMutex.Lock()
+	activeClients[c.Id] = c
+	activeClientsMutex.Unlock()
 
 	// duplicated code:
 	queueName := box.GetUrlParameter(ctx, "queue_id")
@@ -185,6 +238,8 @@ func Read(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err // some error reading queue
 		}
+
+		c.Reads++
 
 		w.Write(message)
 		w.Write([]byte("\n"))
