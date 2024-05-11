@@ -165,6 +165,11 @@ func Write(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	activeClientsMutex.Lock()
 	activeClients[c.Id] = c
 	activeClientsMutex.Unlock()
+	defer func() {
+		activeClientsMutex.Lock()
+		delete(activeClients, c.Id)
+		activeClientsMutex.Unlock()
+	}()
 
 	// duplicated code:
 	queueName := box.GetUrlParameter(ctx, "queue_id")
@@ -211,6 +216,11 @@ func Read(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	activeClientsMutex.Lock()
 	activeClients[c.Id] = c
 	activeClientsMutex.Unlock()
+	defer func() {
+		activeClientsMutex.Lock()
+		delete(activeClients, c.Id)
+		activeClientsMutex.Unlock()
+	}()
 
 	// duplicated code:
 	queueName := box.GetUrlParameter(ctx, "queue_id")
