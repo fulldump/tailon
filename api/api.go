@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/fulldump/box"
+	"github.com/fulldump/box/boxopenapi"
 	"github.com/google/uuid"
 
 	"github.com/fulldump/tailon/glueauth"
@@ -96,6 +97,13 @@ func Build(version, staticsDir string, qs queue.Service) *box.B {
 		WithActions(box.Get(func(ctx context.Context) *glueauth.GlueAuthentication {
 			return glueauth.GetAuth(ctx)
 		}))
+
+	// Openapi automatic spec
+	b.Handle("GET", "/openapi.json", func(w http.ResponseWriter) {
+		e := json.NewEncoder(w)
+		e.SetIndent("", "    ")
+		e.Encode(boxopenapi.Spec(b))
+	}).WithName("OpenApi")
 
 	// Mount statics
 	b.Resource("/*").

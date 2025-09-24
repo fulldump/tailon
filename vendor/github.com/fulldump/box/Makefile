@@ -16,11 +16,14 @@ info:
 	$(GOCMD) env
 
 test:
-	$(GOCMD) test -cover $(PROJECT)/...
+	$(GOCMD) test -count=1 -cover $(PROJECT)/...
 
 example:
 	$(GOCMD) install $(PROJECT)/example
 
 coverage:
-	$(GOCMD) test $(PROJECT) -cover -covermode=count -coverprofile=coverage.out; \
+	$(GOCMD) test $(PROJECT)/... -cover -covermode=count -coverprofile=coverage.out; \
 	$(GOCMD) tool cover -html=coverage.out
+
+version:
+	@git describe --tags --always --long

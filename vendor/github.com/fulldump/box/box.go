@@ -1,14 +1,21 @@
 package box
 
 import (
+	"context"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 )
 
 type B struct {
 	// R is the root resource in box
 	*R
-	HttpHandler http.Handler
+	HttpHandler            http.Handler
+	HandleResourceNotFound any
+	HandleMethodNotAllowed any
+	Deserializer           func(ctx context.Context, r io.Reader, v interface{}) error
+	Serializer             func(ctx context.Context, w io.Writer, v interface{}) error
 }
 
 func (b *B) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -17,7 +24,11 @@ func (b *B) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func NewBox() *B {
 	b := &B{
-		R: NewResource(),
+		R:                      NewResource(),
+		HandleResourceNotFound: DefaultHandlerResourceNotFound,
+		HandleMethodNotAllowed: DefaultHandlerMethodNotAllowed,
+		Serializer:             DefaultSerialize,
+		Deserializer:           DefaultDeserialize,
 	}
 	b.HttpHandler = Box2Http(b)
 
@@ -39,7 +50,7 @@ func (b *B) ListenAndServe() error {
 		Addr:    ":8080",
 		Handler: b,
 	}
-	fmt.Println("Listening to ", server.Addr)
+	fmt.Fprintln(os.Stderr, "Listening to", server.Addr)
 
 	return server.ListenAndServe()
 }
