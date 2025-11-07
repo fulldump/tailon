@@ -1,72 +1,1192 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Tailon - αlpha</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-</head>
-<body>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"
+    />
+    <title>Tailon · Consola</title>
+    <link rel="stylesheet" href="./lib/tailwind.min.css" />
+    <style>
+      :root {
+        --color-brand: #5666f5;
+        --color-brand-50: #f4f6ff;
+        --color-brand-100: #e6e9ff;
+        --color-brand-200: #c8d0ff;
+        --color-brand-300: #a9b6ff;
+        --color-brand-400: #899aff;
+        --color-brand-500: #5666f5;
+        --color-brand-600: #3a4be6;
+        --color-brand-700: #2736c2;
+        --color-brand-800: #1d2999;
+        --color-brand-900: #131c73;
+        --color-accent: #ff7a59;
+        --color-success: #16a34a;
+        --color-warning: #f59e0b;
+        --color-danger: #dc2626;
+        --color-neutral-50: #f8fafc;
+        --color-neutral-100: #f1f5f9;
+        --color-neutral-200: #e2e8f0;
+        --color-neutral-300: #cbd5f5;
+        --color-neutral-400: #94a3b8;
+        --color-neutral-500: #64748b;
+        --color-neutral-600: #475569;
+        --color-neutral-700: #334155;
+        --color-neutral-800: #1e293b;
+        --color-neutral-900: #0f172a;
+        --color-background: var(--color-neutral-50);
+        --color-surface: #ffffff;
+        --color-surface-elevated: #ffffff;
+        --color-surface-muted: #eef2ff;
+        --color-border-subtle: rgba(15, 23, 42, 0.08);
+        --color-border-strong: rgba(15, 23, 42, 0.14);
+        --color-text-strong: #0f172a;
+        --color-text-muted: #475569;
+        --color-text-inverse: #f8fafc;
+        --focus-ring-color: rgba(86, 102, 245, 0.3);
+        --radius-lg: 0.75rem;
+        --radius-md: 0.5rem;
+        --radius-sm: 0.375rem;
+        --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.08);
+        --shadow-md: 0 8px 16px rgba(15, 23, 42, 0.12);
+        --shadow-lg: 0 16px 32px rgba(15, 23, 42, 0.16);
+        color-scheme: light;
+        font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: var(--color-background);
+        color: var(--color-text-strong);
+      }
 
-    <div style="float: right;">
-        <div id="login">
-            <a href="/auth/login">Login</a>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --color-neutral-50: #0f172a;
+          --color-neutral-100: #172554;
+          --color-neutral-200: #1d2a5e;
+          --color-neutral-300: #24316a;
+          --color-neutral-400: #334072;
+          --color-neutral-500: #47536f;
+          --color-neutral-600: #64748b;
+          --color-neutral-700: #94a3b8;
+          --color-neutral-800: #cbd5f5;
+          --color-neutral-900: #e2e8f0;
+          --color-background: #020617;
+          --color-surface: #0b1220;
+          --color-surface-elevated: #111c30;
+          --color-surface-muted: rgba(86, 102, 245, 0.12);
+          --color-border-subtle: rgba(148, 163, 184, 0.24);
+          --color-border-strong: rgba(148, 163, 184, 0.36);
+          --color-text-strong: #f8fafc;
+          --color-text-muted: #cbd5f5;
+          --color-text-inverse: #020617;
+          --focus-ring-color: rgba(86, 102, 245, 0.5);
+          color-scheme: dark;
+          background-color: var(--color-background);
+          color: var(--color-text-strong);
+        }
+      }
+
+      body {
+        margin: 0;
+        background-color: var(--color-background);
+        color: var(--color-text-strong);
+      }
+
+      .hc-card {
+        background-color: var(--color-surface-elevated);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--color-border-subtle);
+        padding: 1.5rem;
+      }
+
+      .hc-card--muted {
+        background: linear-gradient(135deg, rgba(86, 102, 245, 0.08) 0%, rgba(255, 122, 89, 0.08) 100%);
+      }
+
+      .hc-button {
+        border-radius: var(--radius-md);
+        border: 1px solid transparent;
+        font-weight: 600;
+        transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+      }
+
+      .hc-button:focus-visible {
+        outline: 2px solid var(--color-brand-500);
+        outline-offset: 3px;
+      }
+
+      .hc-button:not(:disabled):hover {
+        transform: translateY(-1px);
+      }
+
+      .hc-btn-primary {
+        background: linear-gradient(135deg, var(--color-brand-500), var(--color-brand-600));
+        color: #ffffff;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .hc-btn-primary:hover:not(:disabled) {
+        background: linear-gradient(135deg, var(--color-brand-600), var(--color-brand-700));
+      }
+
+      .hc-btn-secondary {
+        background-color: rgba(86, 102, 245, 0.12);
+        color: var(--color-brand-700);
+        border-color: rgba(86, 102, 245, 0.35);
+      }
+
+      .hc-btn-secondary:hover:not(:disabled) {
+        background-color: rgba(86, 102, 245, 0.2);
+      }
+
+      .hc-btn-danger {
+        background: linear-gradient(135deg, var(--color-danger), #b91c1c);
+        color: #ffffff;
+      }
+
+      .hc-btn-subtle {
+        background-color: var(--color-surface);
+        color: var(--color-text-strong);
+        border-color: var(--color-border-subtle);
+      }
+
+      .hc-scrollbar::-webkit-scrollbar {
+        width: 10px;
+      }
+
+      .hc-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(100, 116, 139, 0.35);
+        border-radius: 9999px;
+      }
+
+      .hc-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-[color:var(--color-background)] text-[color:var(--color-text-strong)]">
+    <div id="app" class="min-h-screen">
+      <div class="flex min-h-screen">
+        <aside
+          class="relative flex h-screen w-80 shrink-0 flex-col border-r border-[color:var(--color-border-subtle)] bg-[color:var(--color-surface)] px-6 py-8 shadow-md"
+        >
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--color-brand-600)]">
+                Tailon
+              </p>
+              <h1 class="mt-1 text-2xl font-semibold text-[color:var(--color-text-strong)]">
+                Consola de colas
+              </h1>
+            </div>
+            <a
+              href="https://github.com/fulldump/tailon"
+              class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--color-surface-muted)] text-[color:var(--color-brand-700)] transition hover:bg-[color:var(--color-brand-100)]"
+              aria-label="Repositorio Tailon en GitHub"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 16 16"
+                class="h-5 w-5"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-1.01-2.69-1.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+                ></path>
+              </svg>
+            </a>
+          </div>
+
+          <div class="mt-8 space-y-6">
+            <div class="space-y-2">
+              <label class="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--color-text-muted)]"
+                >Filtrar colas</label
+              >
+              <div class="relative">
+                <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm text-[color:var(--color-text-muted)]">
+                  🔍
+                </span>
+                <input
+                  type="search"
+                  v-model="filter"
+                  placeholder="Buscar por nombre"
+                  class="w-full rounded-lg border border-[color:var(--color-border-subtle)] bg-[color:var(--color-surface)] py-2 pl-9 pr-3 text-sm text-[color:var(--color-text-strong)] shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand-500)]"
+                  autocomplete="off"
+                />
+              </div>
+            </div>
+
+            <hc-button class="w-full" variant="primary" @click="openCreateQueue">
+              <template #icon>➕</template>
+              Nueva cola
+            </hc-button>
+          </div>
+
+          <div class="mt-8 flex-1 overflow-y-auto pr-2 hc-scrollbar">
+            <div class="flex items-center justify-between text-xs uppercase tracking-[0.18em] text-[color:var(--color-text-muted)]">
+              <span>Colas</span>
+              <span v-if="queues.length" class="font-semibold text-[color:var(--color-brand-600)]">{{ queues.length }}</span>
+            </div>
+
+            <div v-if="listLoading" class="mt-4 space-y-3">
+              <div class="h-12 w-full animate-pulse rounded-lg bg-[color:var(--color-neutral-100)]"></div>
+              <div class="h-12 w-full animate-pulse rounded-lg bg-[color:var(--color-neutral-100)]"></div>
+              <div class="h-12 w-full animate-pulse rounded-lg bg-[color:var(--color-neutral-100)]"></div>
+            </div>
+
+            <template v-else>
+              <p
+                v-if="!filteredQueues.length"
+                class="mt-6 rounded-lg border border-dashed border-[color:var(--color-border-subtle)] bg-[color:var(--color-surface-muted)] px-4 py-6 text-sm text-[color:var(--color-text-muted)]"
+              >
+                <span v-if="queues.length">No hay coincidencias con el filtro actual.</span>
+                <span v-else>Aún no existen colas. ¡Crea la primera!</span>
+              </p>
+
+              <ul class="mt-4 space-y-2">
+                <li v-for="queue in filteredQueues" :key="queue">
+                  <button
+                    type="button"
+                    @click="selectQueue(queue)"
+                    :class="[
+                      'w-full rounded-lg border px-4 py-3 text-left transition',
+                      selectedQueue === queue
+                        ? 'border-transparent bg-[color:var(--color-brand-100)] text-[color:var(--color-brand-800)] shadow'
+                        : 'border-[color:var(--color-border-subtle)] bg-[color:var(--color-surface)] hover:border-[color:var(--color-brand-200)] hover:bg-[color:var(--color-brand-50)]'
+                    ]"
+                  >
+                    <div class="flex items-center justify-between gap-3">
+                      <span class="font-semibold">{{ queue }}</span>
+                      <span
+                        v-if="selectedQueue === queue"
+                        class="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--color-brand-700)]"
+                        >Seleccionada</span
+                      >
+                    </div>
+                    <p class="mt-1 text-xs text-[color:var(--color-text-muted)]">
+                      {{ queueDetails?.name === queue ? 'Mensajes estimados: ' + (queueDetails.len ?? '—') : 'Haz clic para inspeccionar' }}
+                    </p>
+                  </button>
+                </li>
+              </ul>
+            </template>
+          </div>
+        </aside>
+
+        <main class="flex min-h-screen flex-1 flex-col bg-[color:var(--color-background)]">
+          <header
+            class="flex flex-col gap-4 border-b border-[color:var(--color-border-subtle)] bg-[color:var(--color-surface)] px-8 py-6 md:flex-row md:items-center md:justify-between"
+          >
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--color-text-muted)]">
+                Servicio Tailon
+              </p>
+              <h2 class="mt-1 text-3xl font-semibold">Administrador de colas</h2>
+              <p class="mt-2 max-w-xl text-sm text-[color:var(--color-text-muted)]">
+                Explora colas activas, publica mensajes JSON y monitoriza lectores en tiempo real sin salir del navegador.
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center justify-end gap-3">
+              <div v-if="user" class="flex items-center gap-3 rounded-full bg-[color:var(--color-brand-100)] px-3 py-2 text-sm">
+                <img :src="user.picture" :alt="user.nick" class="h-9 w-9 rounded-full object-cover" />
+                <div>
+                  <p class="font-semibold leading-tight">{{ user.nick }}</p>
+                  <a
+                    href="/auth/logout"
+                    class="text-xs font-medium text-[color:var(--color-brand-700)] underline-offset-2 hover:underline"
+                    >Cerrar sesión</a
+                  >
+                </div>
+              </div>
+              <a
+                v-else
+                href="/auth/login"
+                class="rounded-full border border-[color:var(--color-brand-300)] px-4 py-2 text-sm font-semibold text-[color:var(--color-brand-700)] transition hover:bg-[color:var(--color-brand-100)]"
+              >
+                Iniciar sesión
+              </a>
+              <hc-button variant="secondary" @click="refreshAll" :loading="listLoading">
+                <template #icon>⟳</template>
+                Actualizar
+              </hc-button>
+            </div>
+          </header>
+
+          <section class="flex-1 overflow-y-auto px-8 py-8 hc-scrollbar">
+            <div v-if="selectedQueue" class="mx-auto flex max-w-6xl flex-col gap-6">
+              <div class="grid gap-4 md:grid-cols-3">
+                <div class="hc-card">
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--color-text-muted)]">Cola</p>
+                  <p class="mt-2 text-2xl font-semibold text-[color:var(--color-brand-700)]">{{ selectedQueue }}</p>
+                  <p class="mt-3 text-sm text-[color:var(--color-text-muted)]">
+                    Última actualización {{ lastQueueRefresh ? formatRelativeTime(lastQueueRefresh) : '—' }}.
+                  </p>
+                </div>
+                <div class="hc-card">
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--color-text-muted)]">Mensajes pendientes</p>
+                  <p class="mt-2 text-2xl font-semibold">{{ queueDetails?.len ?? '—' }}</p>
+                  <p class="mt-3 text-sm text-[color:var(--color-text-muted)]">Conteo aproximado de mensajes en memoria.</p>
+                </div>
+                <div class="hc-card">
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--color-text-muted)]">Lecturas / escrituras</p>
+                  <p class="mt-2 text-xl font-semibold">
+                    {{ queueDetails?.reads ?? 0 }} <span class="text-sm font-normal text-[color:var(--color-text-muted)]">lecturas</span>
+                  </p>
+                  <p class="text-xl font-semibold">
+                    {{ queueDetails?.writes ?? 0 }} <span class="text-sm font-normal text-[color:var(--color-text-muted)]">escrituras</span>
+                  </p>
+                </div>
+              </div>
+
+              <div class="grid gap-6 lg:grid-cols-2">
+                <div class="hc-card flex flex-col gap-4">
+                  <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <h3 class="text-lg font-semibold">Mensajes recientes</h3>
+                      <p class="text-sm text-[color:var(--color-text-muted)]">
+                        Solicita hasta {{ messageLimit }} mensajes sin consumir toda la cola.
+                      </p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                      <label class="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--color-text-muted)]">
+                        Límite
+                        <input
+                          type="number"
+                          min="1"
+                          max="200"
+                          v-model.number="messageLimit"
+                          class="ml-2 w-20 rounded-md border border-[color:var(--color-border-subtle)] bg-[color:var(--color-surface)] px-2 py-1 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand-500)]"
+                        />
+                      </label>
+                      <hc-button variant="secondary" @click="readMessages" :loading="messageLoading">
+                        <template #icon>📥</template>
+                        Leer mensajes
+                      </hc-button>
+                      <hc-button variant="primary" @click="openWriteMessage">
+                        <template #icon>📝</template>
+                        Publicar
+                      </hc-button>
+                    </div>
+                  </div>
+                  <div
+                    class="relative max-h-80 overflow-y-auto rounded-lg border border-[color:var(--color-border-subtle)] bg-[color:var(--color-surface)] p-4 text-sm hc-scrollbar"
+                  >
+                    <div v-if="messageLoading" class="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-sm">
+                      <span class="h-10 w-10 animate-spin rounded-full border-4 border-[color:var(--color-brand-200)] border-t-[color:var(--color-brand-600)]"></span>
+                    </div>
+                    <p v-if="!messages.length" class="text-sm text-[color:var(--color-text-muted)]">
+                      Aún no se han leído mensajes. Usa “Leer mensajes” para traer los próximos elementos de la cola.
+                    </p>
+                    <ul v-else class="space-y-3">
+                      <li
+                        v-for="message in messages"
+                        :key="message.id"
+                        class="rounded-lg border border-[color:var(--color-border-subtle)] bg-[color:var(--color-brand-50)] p-3"
+                      >
+                        <div class="flex items-center justify-between text-xs text-[color:var(--color-text-muted)]">
+                          <span>
+                            Recibido {{ formatRelativeTime(message.receivedAt) }}
+                          </span>
+                          <span v-if="message.isJson" class="rounded-full bg-[color:var(--color-brand-200)] px-2 py-0.5 text-[color:var(--color-brand-800)]">JSON</span>
+                        </div>
+                        <pre class="mt-2 whitespace-pre-wrap text-xs leading-5 text-[color:var(--color-text-strong)]">{{ message.text }}</pre>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="hc-card flex flex-col gap-4">
+                  <div class="flex items-center justify-between gap-3">
+                    <div>
+                      <h3 class="text-lg font-semibold">Clientes activos</h3>
+                      <p class="text-sm text-[color:var(--color-text-muted)]">
+                        Observa quién está interactuando con la cola en tiempo real.
+                      </p>
+                    </div>
+                    <hc-button variant="secondary" @click="loadClients" :loading="clientsLoading">
+                      <template #icon>👥</template>
+                      Actualizar
+                    </hc-button>
+                  </div>
+                  <div class="space-y-3">
+                    <p v-if="!activeClientsForQueue.length" class="rounded-lg border border-dashed border-[color:var(--color-border-subtle)] px-4 py-6 text-sm text-[color:var(--color-text-muted)]">
+                      No se detectan clientes activos en esta cola.
+                    </p>
+                    <ul v-else class="space-y-3">
+                      <li
+                        v-for="client in activeClientsForQueue"
+                        :key="client.id"
+                        class="rounded-lg border border-[color:var(--color-border-subtle)] bg-[color:var(--color-surface-muted)] p-4"
+                      >
+                        <div class="flex flex-wrap items-center justify-between gap-3 text-sm">
+                          <div>
+                            <p class="font-semibold">{{ client.id }}</p>
+                            <p class="text-xs text-[color:var(--color-text-muted)]">IP {{ client.IP }}</p>
+                          </div>
+                          <div class="text-right text-xs text-[color:var(--color-text-muted)]">
+                            <p>Conectado {{ formatRelativeTime(client.start) }}</p>
+                            <p>{{ client.reads }} lecturas · {{ client.writes }} escrituras</p>
+                          </div>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div class="hc-card">
+                <h3 class="text-lg font-semibold">Detalles técnicos</h3>
+                <dl class="mt-4 grid gap-4 md:grid-cols-2">
+                  <div>
+                    <dt class="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--color-text-muted)]">Nombre</dt>
+                    <dd class="mt-1 text-sm">{{ queueDetails?.name ?? '—' }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--color-text-muted)]">Total lecturas</dt>
+                    <dd class="mt-1 text-sm">{{ queueDetails?.reads ?? '—' }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--color-text-muted)]">Total escrituras</dt>
+                    <dd class="mt-1 text-sm">{{ queueDetails?.writes ?? '—' }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-semibold uppercase tracking-[0.2em] text-[color:var(--color-text-muted)]">Última sincronización</dt>
+                    <dd class="mt-1 text-sm">{{ lastQueueRefresh ? formatDateTime(lastQueueRefresh) : '—' }}</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+
+            <div v-else class="mx-auto flex max-w-4xl flex-col items-center justify-center gap-6 py-24 text-center">
+              <div class="hc-card hc-card--muted w-full max-w-xl">
+                <h3 class="text-2xl font-semibold">Selecciona una cola para comenzar</h3>
+                <p class="mt-3 text-sm text-[color:var(--color-text-muted)]">
+                  Usa el panel izquierdo para elegir una cola existente o crea una nueva. Podrás publicar mensajes y ver consumidores al instante.
+                </p>
+                <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+                  <hc-button variant="primary" @click="openCreateQueue">
+                    <template #icon>✨</template>
+                    Crear cola
+                  </hc-button>
+                  <hc-button variant="secondary" @click="refreshAll">
+                    <template #icon>⟳</template>
+                    Actualizar lista
+                  </hc-button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+
+      <div class="fixed inset-x-0 bottom-4 flex justify-center px-4">
+        <div class="flex w-full max-w-xl flex-col gap-3">
+          <transition-group name="toast" tag="div">
+            <div
+              v-for="toast in notifications"
+              :key="toast.id"
+              :class="[
+                'rounded-xl border px-4 py-3 shadow-md backdrop-blur-md transition',
+                toast.variant === 'success'
+                  ? 'border-emerald-200 bg-emerald-50/90 text-emerald-800'
+                  : toast.variant === 'error'
+                  ? 'border-rose-200 bg-rose-50/90 text-rose-800'
+                  : 'border-slate-200 bg-white/90 text-slate-800'
+              ]"
+            >
+              <p class="text-sm font-semibold">{{ toast.title }}</p>
+              <p class="text-xs text-slate-600">{{ toast.message }}</p>
+            </div>
+          </transition-group>
         </div>
-        <div id="logout" style="display:none;">
-            <img id="user_picture" src="" style="border-radius: 50%; height: 32px; vertical-align: middle;">
-            <span id="user_nick" style="font-weight: bold;"></span>
-            <a href="/auth/logout">Logout</a>
-        </div>
-        <a href="https://github.com/fulldump/tailon" style="display: inline-block; margin: 8px;">
-            <svg aria-hidden="true" height="24" viewBox="0 0 16 16" version="1.1" width="24" data-view-component="true"
-                 class="octicon octicon-mark-github" style="vertical-align: middle; height: 2em;">
-                <path fill-rule="evenodd"
-                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-            </svg>
-        </a>
+      </div>
+
+      <modal-dialog
+        :open="modal.open"
+        :title="modal.title"
+        :description="modal.description"
+        :confirm-text="modal.confirmText"
+        :confirm-variant="modal.confirmVariant"
+        :pending="modal.busy"
+        :error="modal.error"
+        :show-confirm="modal.showConfirm"
+        :show-cancel="modal.showCancel"
+        @close="closeModal"
+        @confirm="confirmModal"
+      >
+        <template v-if="modal.view === 'createQueue'">
+          <form class="space-y-4" @submit.prevent="confirmModal">
+            <div>
+              <label class="text-sm font-medium text-[color:var(--color-text-strong)]">Nombre de la cola</label>
+              <input
+                v-model.trim="modal.form.name"
+                type="text"
+                required
+                placeholder="ej. facturacion-eventos"
+                class="mt-2 w-full rounded-md border border-[color:var(--color-border-subtle)] bg-[color:var(--color-surface)] px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand-500)]"
+              />
+              <p class="mt-2 text-xs text-[color:var(--color-text-muted)]">
+                Usa letras minúsculas, números o guiones. No se permiten espacios ni mayúsculas.
+              </p>
+            </div>
+            <div class="flex justify-end gap-3">
+              <hc-button variant="subtle" type="button" @click="closeModal">Cancelar</hc-button>
+              <hc-button variant="primary" type="submit" :loading="modal.busy">Crear cola</hc-button>
+            </div>
+          </form>
+        </template>
+        <template v-else-if="modal.view === 'writeMessage'">
+          <form class="space-y-4" @submit.prevent="confirmModal">
+            <div>
+              <label class="text-sm font-medium text-[color:var(--color-text-strong)]">Mensaje JSON</label>
+              <textarea
+                v-model.trim="modal.form.payload"
+                rows="8"
+                required
+                placeholder='{"event": "nuevo-pedido", "id": 123}'
+                class="mt-2 w-full rounded-md border border-[color:var(--color-border-subtle)] bg-[color:var(--color-surface)] px-3 py-2 text-sm font-mono focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand-500)]"
+              ></textarea>
+              <p class="mt-2 text-xs text-[color:var(--color-text-muted)]">
+                Se enviará exactamente el JSON proporcionado. Valida que la sintaxis sea correcta antes de publicar.
+              </p>
+            </div>
+            <div class="flex justify-end gap-3">
+              <hc-button variant="subtle" type="button" @click="closeModal">Cancelar</hc-button>
+              <hc-button variant="primary" type="submit" :loading="modal.busy">Publicar mensaje</hc-button>
+            </div>
+          </form>
+        </template>
+        <template v-else-if="modal.view === 'error'">
+          <div class="space-y-4">
+            <p class="text-sm text-[color:var(--color-text-muted)]">{{ modal.form.description }}</p>
+            <div class="flex justify-end">
+              <hc-button variant="primary" type="button" @click="closeModal">Entendido</hc-button>
+            </div>
+          </div>
+        </template>
+      </modal-dialog>
     </div>
 
-    <h1>Welcome to Tailon.io</h1>
-
-    <p>
-        Tailon is a really simple queue service to handle millions of messages per second.
-    </p>
-
-    <p>
-        Tailon is free software, here is the source:
-        <a href="https://github.com/fulldump/tailon">
-            <svg aria-hidden="true" height="24" viewBox="0 0 16 16" version="1.1" width="24" data-view-component="true"
-                 class="octicon octicon-mark-github" style="vertical-align: middle; height: 14px;">
-                <path fill-rule="evenodd"
-                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-            </svg>
-            github.com/fulldump/tailon</a>
-    </p>
-
-    <p>
-        Find documentation examples here:
-        <a href="https://github.com/fulldump/tailon/tree/master/doc/examples">
-            <svg aria-hidden="true" height="24" viewBox="0 0 16 16" version="1.1" width="24" data-view-component="true"
-                 class="octicon octicon-mark-github" style="vertical-align: middle; height: 14px;">
-                <path fill-rule="evenodd"
-                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-            </svg>
-            github.com/fulldump/tailon/tree/master/doc/examples</a>
-    </p>
-
+    <script src="./lib/vue.global.prod.js"></script>
     <script>
-        function id(s) {
-            return document.getElementById(s);
+      const {
+        createApp,
+        ref,
+        reactive,
+        computed,
+        watch,
+        onMounted,
+        onBeforeUnmount,
+      } = Vue;
+
+      const variantClasses = {
+        primary: 'hc-btn-primary',
+        secondary: 'hc-btn-secondary',
+        subtle: 'hc-btn-subtle',
+        danger: 'hc-btn-danger',
+      };
+
+      const HcButton = {
+        name: 'HcButton',
+        props: {
+          variant: {
+            type: String,
+            default: 'primary',
+          },
+          type: {
+            type: String,
+            default: 'button',
+          },
+          loading: {
+            type: Boolean,
+            default: false,
+          },
+          disabled: {
+            type: Boolean,
+            default: false,
+          },
+        },
+        computed: {
+          buttonClasses() {
+            const classes = [
+              'hc-button inline-flex items-center justify-center gap-2 px-4 py-2 text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[color:var(--color-brand-500)]',
+              variantClasses[this.variant] || variantClasses.primary,
+            ];
+            if (this.loading) {
+              classes.push('cursor-wait opacity-80');
+            }
+            return classes.join(' ');
+          },
+        },
+        template: `
+          <button :type="type" :disabled="disabled || loading" :class="buttonClasses">
+            <span v-if="loading" class="inline-flex h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
+            <span v-else-if="$slots.icon" class="text-lg leading-none" aria-hidden="true"><slot name="icon"></slot></span>
+            <span class="font-medium"><slot></slot></span>
+          </button>
+        `,
+      };
+
+      const ModalDialog = Vue.defineComponent({
+        name: 'ModalDialog',
+        props: {
+          open: Boolean,
+          title: String,
+          description: String,
+          confirmText: {
+            type: String,
+            default: 'Confirmar',
+          },
+          confirmVariant: {
+            type: String,
+            default: 'primary',
+          },
+          showConfirm: {
+            type: Boolean,
+            default: false,
+          },
+          showCancel: {
+            type: Boolean,
+            default: false,
+          },
+          pending: {
+            type: Boolean,
+            default: false,
+          },
+          error: {
+            type: String,
+            default: '',
+          },
+        },
+        emits: ['close', 'confirm'],
+        setup(props, { emit, slots }) {
+          const close = () => emit('close');
+          const confirm = () => emit('confirm');
+
+          const handleKey = (event) => {
+            if (!props.open) return;
+            if (event.key === 'Escape') {
+              event.preventDefault();
+              close();
+            }
+          };
+
+          onMounted(() => {
+            window.addEventListener('keydown', handleKey);
+          });
+
+          onBeforeUnmount(() => {
+            window.removeEventListener('keydown', handleKey);
+          });
+
+          watch(
+            () => props.open,
+            (open) => {
+              document.body.style.overflow = open ? 'hidden' : '';
+            }
+          );
+
+          return () => {
+            if (!props.open) {
+              return null;
+            }
+            return Vue.h(
+              'div',
+              { class: 'fixed inset-0 z-50 flex items-center justify-center p-6' },
+              [
+                Vue.h('div', {
+                  class: 'absolute inset-0 bg-slate-900/40 backdrop-blur-sm',
+                  onClick: close,
+                }),
+                Vue.h(
+                  'div',
+                  {
+                    class:
+                      'relative z-10 w-full max-w-xl rounded-2xl border border-[color:var(--color-border-subtle)] bg-[color:var(--color-surface)] p-6 shadow-xl',
+                  },
+                  [
+                    Vue.h('div', { class: 'flex items-start justify-between gap-4' }, [
+                      Vue.h('div', { class: 'space-y-2' }, [
+                        Vue.h('h2', { class: 'text-xl font-semibold' }, props.title || ''),
+                        props.description
+                          ? Vue.h('p', { class: 'text-sm text-[color:var(--color-text-muted)]' }, props.description)
+                          : null,
+                      ]),
+                      Vue.h(
+                        'button',
+                        {
+                          class:
+                            'rounded-full border border-transparent bg-[color:var(--color-brand-100)] px-2 py-1 text-sm text-[color:var(--color-brand-700)] transition hover:bg-[color:var(--color-brand-200)]',
+                          onClick: close,
+                        },
+                        '✕'
+                      ),
+                    ]),
+                    props.error
+                      ? Vue.h(
+                          'div',
+                          {
+                            class:
+                              'mt-4 rounded-lg border border-[color:var(--color-danger)] bg-[color:var(--color-danger)]/10 px-3 py-2 text-sm text-[color:var(--color-danger)]',
+                          },
+                          props.error
+                        )
+                      : null,
+                    Vue.h('div', { class: 'mt-6' }, slots.default ? slots.default() : []),
+                    props.showConfirm || props.showCancel
+                      ? Vue.h('div', { class: 'mt-6 flex justify-end gap-3' }, [
+                          props.showCancel
+                            ? Vue.h(
+                                HcButton,
+                                {
+                                  variant: 'subtle',
+                                  onClick: close,
+                                },
+                                {
+                                  default: () => 'Cancelar',
+                                }
+                              )
+                            : null,
+                          props.showConfirm
+                            ? Vue.h(
+                                HcButton,
+                                {
+                                  variant: props.confirmVariant,
+                                  loading: props.pending,
+                                  onClick: confirm,
+                                },
+                                {
+                                  default: () => props.confirmText || 'Confirmar',
+                                }
+                              )
+                            : null,
+                        ])
+                      : null,
+                  ]
+                ),
+              ]
+            );
+          };
+        },
+      });
+
+      const formatErrorResponse = async (response) => {
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const data = await response.json().catch(() => null);
+          return (
+            data?.error?.description ||
+            data?.error?.message ||
+            (typeof data === 'string' ? data : JSON.stringify(data)) ||
+            `${response.status} ${response.statusText}`
+          );
         }
+        const text = await response.text();
+        return text || `${response.status} ${response.statusText}`;
+      };
 
-        fetch('/auth/me').then(resp => resp.json()).then(me => {
-            if (me.error) return;
-            id('login').style.display = 'none';
-            id('logout').style.display = 'block';
-            id('user_picture').setAttribute('src', me.picture);
-            id('user_nick').innerText = me.nick;
-        })
+      createApp({
+        components: {
+          HcButton,
+          ModalDialog,
+        },
+        setup() {
+          const queues = ref([]);
+          const filter = ref('');
+          const listLoading = ref(false);
+          const selectedQueue = ref(null);
+          const queueDetails = ref(null);
+          const lastQueueRefresh = ref(null);
+          const queuePoll = ref(null);
+          const listPoll = ref(null);
+          const messageLimit = ref(25);
+          const messages = ref([]);
+          const messageLoading = ref(false);
+          const notifications = reactive([]);
+          const modal = reactive({
+            open: false,
+            view: null,
+            title: '',
+            description: '',
+            confirmText: '',
+            confirmVariant: 'primary',
+            showConfirm: false,
+            showCancel: false,
+            busy: false,
+            error: '',
+            form: {},
+          });
+          const user = ref(null);
+          const clients = ref([]);
+          const clientsLoading = ref(false);
+
+          const filteredQueues = computed(() => {
+            const term = filter.value.trim().toLowerCase();
+            const ordered = [...queues.value].sort((a, b) => a.localeCompare(b));
+            if (!term) {
+              return ordered;
+            }
+            return ordered.filter((name) => name.toLowerCase().includes(term));
+          });
+
+          const activeClientsForQueue = computed(() => {
+            if (!selectedQueue.value) return [];
+            return clients.value.filter((client) => client.queue === selectedQueue.value);
+          });
+
+          const addNotification = (variant, title, message) => {
+            const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+            notifications.push({ id, variant, title, message });
+            setTimeout(() => {
+              const index = notifications.findIndex((item) => item.id === id);
+              if (index >= 0) notifications.splice(index, 1);
+            }, 5000);
+          };
+
+          const fetchJSON = async (url, options = {}) => {
+            const response = await fetch(url, options);
+            if (!response.ok) {
+              throw new Error(await formatErrorResponse(response));
+            }
+            const contentType = response.headers.get('content-type') || '';
+            if (!contentType.includes('application/json')) {
+              return null;
+            }
+            return response.json();
+          };
+
+          const refreshQueues = async () => {
+            listLoading.value = true;
+            try {
+              const result = await fetchJSON('/v1/queues');
+              queues.value = Array.isArray(result) ? result : [];
+              if (queues.value.length) {
+                if (!selectedQueue.value || !queues.value.includes(selectedQueue.value)) {
+                  selectedQueue.value = queues.value[0];
+                }
+              } else {
+                selectedQueue.value = null;
+                queueDetails.value = null;
+                messages.value = [];
+              }
+            } catch (error) {
+              addNotification('error', 'No se pudieron cargar las colas', error.message || String(error));
+            } finally {
+              listLoading.value = false;
+            }
+          };
+
+          const loadQueueDetails = async () => {
+            if (!selectedQueue.value) return;
+            try {
+              const details = await fetchJSON(`/v1/queues/${encodeURIComponent(selectedQueue.value)}`);
+              queueDetails.value = details || null;
+              lastQueueRefresh.value = new Date();
+            } catch (error) {
+              addNotification('error', 'Error al actualizar la cola', error.message || String(error));
+            }
+          };
+
+          const loadUser = async () => {
+            try {
+              const me = await fetchJSON('/auth/me');
+              if (me && !me.error) {
+                user.value = me;
+              }
+            } catch (error) {
+              // Ignorar errores de autenticación si no hay sesión
+            }
+          };
+
+          const loadClients = async () => {
+            clientsLoading.value = true;
+            try {
+              const data = await fetchJSON('/v1/clients');
+              const now = Date.now();
+              const mapped = Object.values(data || {}).map((client) => ({
+                id: client.id,
+                queue: client.queue,
+                IP: client.IP,
+                reads: client.reads,
+                writes: client.writes,
+                start: client.start ? new Date(client.start) : new Date(now),
+              }));
+              clients.value = mapped;
+            } catch (error) {
+              addNotification('error', 'No se pudieron cargar los clientes', error.message || String(error));
+            } finally {
+              clientsLoading.value = false;
+            }
+          };
+
+          const readMessages = async () => {
+            if (!selectedQueue.value) return;
+            const limit = Math.max(1, Math.min(200, Number(messageLimit.value) || 1));
+            messageLoading.value = true;
+            try {
+              const response = await fetch(`/v1/queues/${encodeURIComponent(selectedQueue.value)}:read`, {
+                method: 'POST',
+                headers: {
+                  Limit: String(limit),
+                },
+              });
+              if (!response.ok) {
+                throw new Error(await formatErrorResponse(response));
+              }
+              const text = await response.text();
+              const lines = text
+                .split('\n')
+                .map((line) => line.trim())
+                .filter(Boolean);
+              if (!lines.length) {
+                addNotification('info', 'Sin mensajes nuevos', 'No se recibieron mensajes en esta lectura.');
+              }
+              const parsed = lines.map((line, index) => {
+                let formatted = line;
+                let isJson = false;
+                try {
+                  formatted = JSON.stringify(JSON.parse(line), null, 2);
+                  isJson = true;
+                } catch (err) {
+                  formatted = line;
+                }
+                return {
+                  id: `${Date.now()}-${index}`,
+                  text: formatted,
+                  isJson,
+                  receivedAt: new Date(),
+                };
+              });
+              messages.value = [...parsed, ...messages.value].slice(0, 200);
+              loadQueueDetails();
+            } catch (error) {
+              addNotification('error', 'No se pudieron leer mensajes', error.message || String(error));
+            } finally {
+              messageLoading.value = false;
+            }
+          };
+
+          const openCreateQueue = () => {
+            modal.open = true;
+            modal.view = 'createQueue';
+            modal.title = 'Crear nueva cola';
+            modal.description = 'Define un nombre único para identificar la cola en Tailon.';
+            modal.form = { name: '' };
+            modal.busy = false;
+            modal.error = '';
+          };
+
+          const openWriteMessage = () => {
+            if (!selectedQueue.value) return;
+            modal.open = true;
+            modal.view = 'writeMessage';
+            modal.title = `Publicar mensaje en “${selectedQueue.value}”`;
+            modal.description = 'El mensaje se enviará inmediatamente al encolador seleccionado.';
+            modal.form = { payload: '' };
+            modal.busy = false;
+            modal.error = '';
+          };
+
+          const openErrorDialog = (title, description) => {
+            modal.open = true;
+            modal.view = 'error';
+            modal.title = title;
+            modal.form = { description };
+            modal.busy = false;
+            modal.error = '';
+          };
+
+          const closeModal = () => {
+            modal.open = false;
+            modal.view = null;
+            modal.error = '';
+          };
+
+          const confirmModal = async () => {
+            if (modal.view === 'createQueue') {
+              await submitCreateQueue();
+            } else if (modal.view === 'writeMessage') {
+              await submitWriteMessage();
+            }
+          };
+
+          const submitCreateQueue = async () => {
+            const name = modal.form.name?.trim();
+            if (!name) {
+              modal.error = 'El nombre es obligatorio.';
+              return;
+            }
+            if (!/^[-a-z0-9]+$/.test(name)) {
+              modal.error = 'Solo se permiten minúsculas, números y guiones.';
+              return;
+            }
+            modal.busy = true;
+            modal.error = '';
+            try {
+              await fetchJSON('/v1/queues', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name }),
+              });
+              closeModal();
+              addNotification('success', 'Cola creada', `La cola “${name}” se creó correctamente.`);
+              await refreshQueues();
+              selectedQueue.value = name;
+              await loadQueueDetails();
+            } catch (error) {
+              modal.error = error.message || String(error);
+            } finally {
+              modal.busy = false;
+            }
+          };
+
+          const submitWriteMessage = async () => {
+            const payload = modal.form.payload?.trim();
+            if (!payload) {
+              modal.error = 'El mensaje no puede estar vacío.';
+              return;
+            }
+            try {
+              JSON.parse(payload);
+            } catch (error) {
+              modal.error = 'El contenido no es un JSON válido.';
+              return;
+            }
+            modal.busy = true;
+            modal.error = '';
+            try {
+              const response = await fetch(`/v1/queues/${encodeURIComponent(selectedQueue.value)}:write`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: payload,
+              });
+              if (!response.ok) {
+                throw new Error(await formatErrorResponse(response));
+              }
+              closeModal();
+              addNotification('success', 'Mensaje publicado', 'El mensaje se envió correctamente.');
+              await loadQueueDetails();
+            } catch (error) {
+              modal.error = error.message || String(error);
+            } finally {
+              modal.busy = false;
+            }
+          };
+
+          const selectQueue = async (queue) => {
+            if (selectedQueue.value === queue) return;
+            selectedQueue.value = queue;
+            messages.value = [];
+            await loadQueueDetails();
+          };
+
+          const refreshAll = async () => {
+            await refreshQueues();
+            await loadQueueDetails();
+            await loadClients();
+          };
+
+          const setupIntervals = () => {
+            if (listPoll.value) clearInterval(listPoll.value);
+            listPoll.value = setInterval(refreshQueues, 15000);
+          };
+
+          watch(
+            () => selectedQueue.value,
+            async (queue) => {
+              if (queue) {
+                await loadQueueDetails();
+                if (queuePoll.value) clearInterval(queuePoll.value);
+                queuePoll.value = setInterval(loadQueueDetails, 8000);
+              } else if (queuePoll.value) {
+                clearInterval(queuePoll.value);
+                queuePoll.value = null;
+              }
+            }
+          );
+
+          onMounted(async () => {
+            await Promise.all([refreshQueues(), loadUser(), loadClients()]);
+            setupIntervals();
+          });
+
+          onBeforeUnmount(() => {
+            if (queuePoll.value) clearInterval(queuePoll.value);
+            if (listPoll.value) clearInterval(listPoll.value);
+          });
+
+          const formatRelativeTime = (date) => {
+            if (!date) return '—';
+            const target = date instanceof Date ? date : new Date(date);
+            const diff = target.getTime() - Date.now();
+            const absDiff = Math.abs(diff);
+            const rtf = new Intl.RelativeTimeFormat('es', { numeric: 'auto' });
+            const thresholds = [
+              { limit: 60_000, divisor: 1000, unit: 'second' },
+              { limit: 3_600_000, divisor: 60_000, unit: 'minute' },
+              { limit: 86_400_000, divisor: 3_600_000, unit: 'hour' },
+              { limit: 604_800_000, divisor: 86_400_000, unit: 'day' },
+            ];
+            for (const threshold of thresholds) {
+              if (absDiff < threshold.limit) {
+                return rtf.format(Math.round(diff / threshold.divisor), threshold.unit);
+              }
+            }
+            return rtf.format(Math.round(diff / 604_800_000), 'week');
+          };
+
+          const formatDateTime = (date) => {
+            if (!date) return '—';
+            const target = date instanceof Date ? date : new Date(date);
+            return new Intl.DateTimeFormat('es-ES', {
+              dateStyle: 'medium',
+              timeStyle: 'medium',
+            }).format(target);
+          };
+
+          return {
+            queues,
+            filter,
+            filteredQueues,
+            listLoading,
+            selectedQueue,
+            selectQueue,
+            queueDetails,
+            lastQueueRefresh,
+            messageLimit,
+            messages,
+            messageLoading,
+            readMessages,
+            notifications,
+            addNotification,
+            modal,
+            openCreateQueue,
+            openWriteMessage,
+            openErrorDialog,
+            closeModal,
+            confirmModal,
+            refreshAll,
+            user,
+            loadClients,
+            clientsLoading,
+            activeClientsForQueue,
+            formatRelativeTime,
+            formatDateTime,
+          };
+        },
+      }).mount('#app');
     </script>
-
-</body>
+  </body>
 </html>
-
