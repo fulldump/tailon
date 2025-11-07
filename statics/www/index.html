@@ -1,72 +1,983 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="utf-8">
-    <title>Tailon - αlpha</title>
+    <title>Tailon · Consola de administración</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-</head>
-<body>
-
-    <div style="float: right;">
-        <div id="login">
-            <a href="/auth/login">Login</a>
-        </div>
-        <div id="logout" style="display:none;">
-            <img id="user_picture" src="" style="border-radius: 50%; height: 32px; vertical-align: middle;">
-            <span id="user_nick" style="font-weight: bold;"></span>
-            <a href="/auth/logout">Logout</a>
-        </div>
-        <a href="https://github.com/fulldump/tailon" style="display: inline-block; margin: 8px;">
-            <svg aria-hidden="true" height="24" viewBox="0 0 16 16" version="1.1" width="24" data-view-component="true"
-                 class="octicon octicon-mark-github" style="vertical-align: middle; height: 2em;">
-                <path fill-rule="evenodd"
-                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-            </svg>
-        </a>
-    </div>
-
-    <h1>Welcome to Tailon.io</h1>
-
-    <p>
-        Tailon is a really simple queue service to handle millions of messages per second.
-    </p>
-
-    <p>
-        Tailon is free software, here is the source:
-        <a href="https://github.com/fulldump/tailon">
-            <svg aria-hidden="true" height="24" viewBox="0 0 16 16" version="1.1" width="24" data-view-component="true"
-                 class="octicon octicon-mark-github" style="vertical-align: middle; height: 14px;">
-                <path fill-rule="evenodd"
-                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-            </svg>
-            github.com/fulldump/tailon</a>
-    </p>
-
-    <p>
-        Find documentation examples here:
-        <a href="https://github.com/fulldump/tailon/tree/master/doc/examples">
-            <svg aria-hidden="true" height="24" viewBox="0 0 16 16" version="1.1" width="24" data-view-component="true"
-                 class="octicon octicon-mark-github" style="vertical-align: middle; height: 14px;">
-                <path fill-rule="evenodd"
-                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-            </svg>
-            github.com/fulldump/tailon/tree/master/doc/examples</a>
-    </p>
-
-    <script>
-        function id(s) {
-            return document.getElementById(s);
+    <link rel="stylesheet" href="lib/tailwind.min.css">
+    <style>
+        :root {
+            --color-brand: #5666F5;
+            --color-brand-600: #3A4BE6;
+            --color-brand-100: #E6E9FF;
+            --color-accent: #FF7A59;
+            --color-neutral-900: #0F172A;
+            --color-neutral-700: #1F2937;
+            --color-neutral-600: #475569;
+            --color-neutral-500: #64748B;
+            --color-neutral-400: #94A3B8;
+            --color-neutral-200: #E2E8F0;
+            --color-neutral-100: #F8FAFC;
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.08);
+            --shadow-md: 0 8px 16px rgba(15, 23, 42, 0.12);
+            --shadow-lg: 0 16px 32px rgba(15, 23, 42, 0.16);
         }
 
-        fetch('/auth/me').then(resp => resp.json()).then(me => {
-            if (me.error) return;
-            id('login').style.display = 'none';
-            id('logout').style.display = 'block';
-            id('user_picture').setAttribute('src', me.picture);
-            id('user_nick').innerText = me.nick;
-        })
-    </script>
+        * {
+            box-sizing: border-box;
+        }
 
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--color-neutral-100);
+            color: var(--color-neutral-900);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        [v-cloak] {
+            display: none !important;
+        }
+
+        .hc-btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.65rem 1.25rem;
+            border-radius: 0.75rem;
+            border: none;
+            background: linear-gradient(135deg, var(--color-brand), var(--color-brand-600));
+            color: #fff;
+            font-weight: 600;
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+        }
+
+        .hc-btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .hc-btn-primary:not(:disabled):hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .hc-btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.15rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(86, 102, 245, 0.28);
+            background: rgba(86, 102, 245, 0.08);
+            color: var(--color-brand);
+            font-weight: 600;
+            transition: background 0.2s ease, border 0.2s ease, color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .hc-btn-secondary:hover {
+            background: rgba(86, 102, 245, 0.18);
+        }
+
+        .hc-btn-secondary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .hc-input {
+            width: 100%;
+            padding: 0.65rem 0.9rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--color-neutral-200);
+            background: rgba(255, 255, 255, 0.92);
+            color: inherit;
+            transition: border 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        .hc-input:focus {
+            outline: none;
+            border-color: var(--color-brand);
+            box-shadow: 0 0 0 4px rgba(86, 102, 245, 0.18);
+            background: #fff;
+        }
+
+        .hc-textarea {
+            min-height: 160px;
+            resize: vertical;
+        }
+
+        .hc-card {
+            background: #fff;
+            border-radius: 1.25rem;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            padding: 1.75rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .hc-stat {
+            border-radius: 1rem;
+            padding: 1.1rem 1.2rem;
+            background: linear-gradient(180deg, rgba(86, 102, 245, 0.08), rgba(86, 102, 245, 0.03));
+            border: 1px solid rgba(86, 102, 245, 0.12);
+        }
+
+        .hc-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            background: rgba(86, 102, 245, 0.12);
+            color: var(--color-brand-600);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .hc-scroll-shadow {
+            position: relative;
+        }
+
+        .hc-scroll-shadow::after {
+            content: "";
+            position: sticky;
+            bottom: 0;
+            height: 24px;
+            display: block;
+            background: linear-gradient(180deg, rgba(248, 250, 252, 0), rgba(248, 250, 252, 1));
+            pointer-events: none;
+        }
+
+        .hc-modal-overlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            z-index: 50;
+        }
+
+        .hc-modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(10px);
+        }
+
+        .hc-modal {
+            position: relative;
+            z-index: 10;
+            width: min(520px, 100%);
+            background: #fff;
+            border-radius: 1.5rem;
+            padding: 2.25rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .hc-link {
+            color: var(--color-brand-600);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .hc-link:hover {
+            text-decoration: underline;
+        }
+
+        .hc-empty-state {
+            border-radius: 1.25rem;
+            border: 2px dashed rgba(148, 163, 184, 0.35);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.65);
+        }
+
+        .hc-sidebar-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border-radius: 0.9rem;
+            border: 1px solid transparent;
+            background: rgba(248, 250, 252, 0.65);
+            color: var(--color-neutral-700);
+            font-weight: 600;
+            text-align: left;
+            transition: background 0.18s ease, color 0.18s ease, border 0.18s ease, transform 0.18s ease;
+        }
+
+        .hc-sidebar-item:hover {
+            background: rgba(86, 102, 245, 0.08);
+            border-color: rgba(86, 102, 245, 0.22);
+        }
+
+        .hc-sidebar-item.is-active {
+            background: linear-gradient(135deg, rgba(86, 102, 245, 0.95), rgba(58, 75, 230, 0.95));
+            border-color: transparent;
+            color: #fff;
+            box-shadow: var(--shadow-md);
+        }
+
+        .hc-sidebar-item span {
+            max-width: 70%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .hc-monospaced {
+            font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        .hc-tag {
+            border-radius: 999px;
+            padding: 0.125rem 0.6rem;
+            background: rgba(15, 23, 42, 0.08);
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" v-cloak>
+        <div class="min-h-screen flex flex-col lg:flex-row lg:overflow-hidden">
+            <div
+                v-if="isSidebarOpen"
+                class="fixed inset-0 z-30 bg-slate-900/45 backdrop-blur-sm lg:hidden"
+                @click="isSidebarOpen = false"
+            ></div>
+
+            <aside
+                :class="[
+                    'fixed inset-y-0 left-0 z-40 flex w-80 flex-col gap-6 border-r border-slate-200/80 bg-white px-6 py-6 shadow-xl transition-transform duration-200 ease-out lg:static lg:h-auto lg:translate-x-0 lg:border-none lg:shadow-none',
+                    isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+                ]"
+            >
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Tailon</p>
+                        <h1 class="mt-1 text-xl font-semibold text-slate-800">Consola de colas</h1>
+                    </div>
+                    <button
+                        class="rounded-full border border-slate-200 p-2 text-slate-500 transition hover:text-slate-700 lg:hidden"
+                        @click="isSidebarOpen = false"
+                        aria-label="Cerrar menú"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5">
+                            <path fill-rule="evenodd" d="M6.225 6.225a.75.75 0 011.06 0L12 10.94l4.715-4.715a.75.75 0 111.06 1.06L13.06 12l4.715 4.715a.75.75 0 01-1.06 1.06L12 13.06l-4.715 4.715a.75.75 0 01-1.06-1.06L10.94 12 6.225 7.285a.75.75 0 010-1.06z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="rounded-2xl bg-slate-50/80 p-4 shadow-sm">
+                    <p class="text-sm font-medium text-slate-500">Filtrar colas</p>
+                    <div class="mt-3 flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 105.25 5.25a7.5 7.5 0 0011.4 11.4z" />
+                        </svg>
+                        <input
+                            class="hc-input border-none bg-transparent p-0 text-sm focus:border-transparent focus:shadow-none"
+                            type="search"
+                            placeholder="Buscar por nombre"
+                            v-model="filters.term"
+                            aria-label="Filtrar colas por nombre"
+                        >
+                    </div>
+                    <div class="mt-4 flex items-center justify-between text-xs text-slate-500">
+                        <span>{{ filteredQueues.length }} cola<span v-if="filteredQueues.length !== 1">s</span></span>
+                        <button class="text-xs font-semibold text-slate-500 transition hover:text-slate-700" @click="loadQueues" :disabled="isLoadingQueues">
+                            <span v-if="!isLoadingQueues">Actualizar</span>
+                            <span v-else>Cargando…</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex flex-1 flex-col gap-4 overflow-hidden">
+                    <button class="hc-btn-primary" @click="openCreateQueue">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 4.5a.75.75 0 01.75.75v6h6a.75.75 0 010 1.5h-6v6a.75.75 0 01-1.5 0v-6h-6a.75.75 0 010-1.5h6v-6A.75.75 0 0112 4.5z" />
+                        </svg>
+                        Nueva cola
+                    </button>
+
+                    <div class="hc-scroll-shadow flex-1 overflow-y-auto pr-1">
+                        <div v-if="queuesError" class="hc-card bg-rose-50/70 text-sm text-rose-600">{{ queuesError }}</div>
+                        <div v-else-if="isLoadingQueues" class="space-y-3">
+                            <div v-for="i in 6" :key="'skeleton-'+i" class="h-11 animate-pulse rounded-xl bg-slate-200/60"></div>
+                        </div>
+                        <template v-else>
+                            <p v-if="!filteredQueues.length" class="hc-empty-state text-sm text-slate-500">
+                                No se encontraron colas con el filtro aplicado.
+                            </p>
+                            <div v-else class="space-y-2 pb-4">
+                                <button
+                                    v-for="name in filteredQueues"
+                                    :key="name"
+                                    class="hc-sidebar-item"
+                                    :class="{ 'is-active': name === selectedQueue }"
+                                    @click="selectQueue(name)"
+                                >
+                                    <span>{{ name }}</span>
+                                    <span class="hc-tag text-xs" v-if="queueDetails && queueDetails.name === name && queueDetails.len !== undefined">
+                                        {{ queueDetails.len }} pendientes
+                                    </span>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="rounded-2xl border border-slate-200/60 bg-white p-4 text-xs text-slate-500">
+                    <p class="font-semibold text-slate-600">Recursos rápidos</p>
+                    <ul class="mt-3 space-y-2">
+                        <li><a class="hc-link" href="https://github.com/fulldump/tailon" target="_blank" rel="noopener">Repositorio en GitHub</a></li>
+                        <li><a class="hc-link" href="https://github.com/fulldump/tailon/tree/master/doc/examples" target="_blank" rel="noopener">Ejemplos de uso</a></li>
+                        <li><a class="hc-link" href="/openapi.json" target="_blank" rel="noopener">Especificación OpenAPI</a></li>
+                    </ul>
+                </div>
+            </aside>
+            <main class="flex-1 bg-gradient-to-b from-slate-100 via-white to-white lg:overflow-y-auto">
+                <header class="sticky top-0 z-10 border-b border-slate-200/80 bg-white/80 backdrop-blur lg:static">
+                    <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <button
+                                class="rounded-full border border-slate-200 p-2 text-slate-500 transition hover:text-slate-700 lg:hidden"
+                                @click="isSidebarOpen = true"
+                                aria-label="Abrir menú"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
+                                </svg>
+                            </button>
+                            <div>
+                                <h2 class="text-lg font-semibold text-slate-800">Panel de control</h2>
+                                <p class="text-sm text-slate-500">Administra tus colas y revisa la actividad en tiempo real.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 text-sm">
+                            <div v-if="user" class="flex items-center gap-3 rounded-full bg-slate-50 px-3 py-2">
+                                <img v-if="user.picture" :src="user.picture" alt="Avatar" class="h-8 w-8 rounded-full object-cover">
+                                <div class="text-left">
+                                    <p class="text-sm font-semibold text-slate-700">{{ user.nick || user.email || 'Cuenta' }}</p>
+                                    <a class="text-xs text-slate-500 transition hover:text-slate-700" href="/auth/logout">Cerrar sesión</a>
+                                </div>
+                            </div>
+                            <div v-else-if="!isLoadingUser" class="flex items-center gap-3">
+                                <a class="hc-btn-secondary" href="/auth/login">Iniciar sesión</a>
+                            </div>
+                            <div v-else class="text-xs text-slate-500">Comprobando sesión…</div>
+                        </div>
+                    </div>
+                </header>
+
+                <section class="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-8">
+                    <div v-if="!selectedQueue" class="hc-empty-state text-slate-600">
+                        <h2 class="text-xl font-semibold text-slate-800">Selecciona una cola</h2>
+                        <p class="mt-2 text-sm text-slate-500">Elige una cola en el panel lateral para ver su estado y acciones disponibles.</p>
+                        <p class="mt-4 text-xs text-slate-400">¿Necesitas una nueva? Usa el botón «Nueva cola» para crearla en segundos.</p>
+                    </div>
+                    <template v-else>
+                        <section class="hc-card">
+                            <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Cola seleccionada</p>
+                                    <h2 class="mt-2 text-2xl font-semibold text-slate-800">{{ selectedQueue }}</h2>
+                                    <p class="mt-1 text-sm text-slate-500">Resumen de métricas y estado general.</p>
+                                </div>
+                                <div class="flex flex-col items-start gap-2 text-sm text-slate-500 lg:items-end">
+                                    <div v-if="queueDetailsFetchedAt" class="flex items-center gap-2">
+                                        <span>Actualizado {{ formatRelative(queueDetailsFetchedAt) }}</span>
+                                        <span class="text-slate-400">({{ formatDate(queueDetailsFetchedAt) }})</span>
+                                    </div>
+                                    <div class="flex flex-wrap gap-2">
+                                        <button class="hc-btn-secondary" @click="loadQueues" :disabled="isLoadingQueues">
+                                            <span v-if="!isLoadingQueues">Actualizar listado</span>
+                                            <span v-else>Actualizando…</span>
+                                        </button>
+                                        <button class="hc-btn-primary" @click="refreshQueueDetails" :disabled="isLoadingQueueDetail">
+                                            <span v-if="!isLoadingQueueDetail">Refrescar cola</span>
+                                            <span v-else>Refrescando…</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-if="queueDetailsError" class="mt-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
+                                {{ queueDetailsError }}
+                            </div>
+                            <div v-else-if="!queueDetails && isLoadingQueueDetail" class="mt-6 text-sm text-slate-500">
+                                Actualizando métricas…
+                            </div>
+                            <div v-else class="mt-6 grid gap-4 sm:grid-cols-3">
+                                <div v-for="metric in queueMetrics" :key="metric.key" class="hc-stat">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{{ metric.label }}</p>
+                                    <p class="mt-2 text-2xl font-semibold text-slate-800">{{ metric.value }}</p>
+                                    <p class="mt-1 text-sm text-slate-500">{{ metric.description }}</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="grid gap-6 lg:grid-cols-3">
+                            <section class="hc-card lg:col-span-2">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-slate-800">Clientes activos</h3>
+                                        <p class="text-sm text-slate-500">Conexiones leyendo o escribiendo en esta cola.</p>
+                                    </div>
+                                    <span v-if="clientsFetchedAt" class="hc-badge">Actualizado {{ formatRelative(clientsFetchedAt) }}</span>
+                                </div>
+                                <div v-if="clientsError" class="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
+                                    {{ clientsError }}
+                                </div>
+                                <div v-else-if="isLoadingClients" class="mt-4 space-y-3">
+                                    <div v-for="i in 3" :key="'client-skeleton-'+i" class="h-14 animate-pulse rounded-xl bg-slate-200/60"></div>
+                                </div>
+                                <div v-else-if="!activeClients.length" class="mt-4 rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-6 text-sm text-slate-500">
+                                    No hay clientes activos en este momento.
+                                </div>
+                                <ul v-else class="mt-4 space-y-3">
+                                    <li
+                                        v-for="client in activeClients"
+                                        :key="client.id"
+                                        class="flex flex-col gap-2 rounded-xl border border-slate-200/70 bg-white/80 px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+                                    >
+                                        <div>
+                                            <p class="font-medium text-slate-700">Cliente {{ client.id ? client.id.slice(0, 8) + '…' : 'sin ID' }}</p>
+                                            <p class="text-xs text-slate-500">IP {{ client.IP || '—' }} · Inició {{ formatRelative(client.start) }}</p>
+                                        </div>
+                                        <div class="flex items-center gap-3 text-xs text-slate-500">
+                                            <span class="hc-tag bg-slate-100 text-slate-600">Reads {{ client.reads ?? '—' }}</span>
+                                            <span class="hc-tag bg-slate-100 text-slate-600">Writes {{ client.writes ?? '—' }}</span>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </section>
+
+                            <section class="hc-card space-y-4">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-slate-800">Acciones rápidas</h3>
+                                    <p class="text-sm text-slate-500">Envía mensajes de prueba o copia el ejemplo de cURL.</p>
+                                </div>
+                                <div>
+                                    <label class="text-sm font-semibold text-slate-600" for="messageDraft">Mensaje JSON</label>
+                                    <textarea id="messageDraft" class="hc-input hc-textarea mt-2 hc-monospaced text-sm" v-model="messageDraft"></textarea>
+                                    <p class="mt-2 text-xs text-slate-400">El mensaje se enviará tal cual a la cola seleccionada.</p>
+                                </div>
+                                <div v-if="writeError" class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
+                                    {{ writeError }}
+                                </div>
+                                <div v-if="writeSuccess" class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-600">
+                                    {{ writeSuccess }}
+                                </div>
+                                <button class="hc-btn-primary w-full justify-center" @click="sendMessage" :disabled="isSendingMessage">
+                                    <span v-if="!isSendingMessage">Publicar mensaje</span>
+                                    <span v-else>Enviando…</span>
+                                </button>
+                                <div v-if="curlExample" class="rounded-xl bg-slate-50/80 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Ejemplo cURL</p>
+                                    <pre class="mt-3 whitespace-pre-wrap text-xs text-slate-600">{{ curlExample }}</pre>
+                                </div>
+                            </section>
+                        </div>
+                    </template>
+                </section>
+            </main>
+        </div>
+
+        <div v-if="showCreateQueue" class="hc-modal-overlay">
+            <div class="hc-modal-backdrop" @click="closeCreateQueue"></div>
+            <div class="hc-modal">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <h2 class="text-xl font-semibold text-slate-800">Crear nueva cola</h2>
+                        <p class="mt-1 text-sm text-slate-500">Define un nombre descriptivo para comenzar a enviar mensajes de inmediato.</p>
+                    </div>
+                    <button class="rounded-full border border-slate-200 p-2 text-slate-400 transition hover:text-slate-600" @click="closeCreateQueue" aria-label="Cerrar">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <form class="mt-6 space-y-4" @submit.prevent="submitCreateQueue">
+                    <label class="block text-sm font-medium text-slate-600" for="queueName">Nombre de la cola</label>
+                    <input id="queueName" class="hc-input" type="text" placeholder="p.ej. facturacion-eventos" v-model="newQueueName" autocomplete="off" spellcheck="false" />
+                    <p class="text-xs text-slate-400">Utiliza letras minúsculas, números y guiones para mantener consistencia.</p>
+                    <div v-if="createQueueError" class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
+                        {{ createQueueError }}
+                    </div>
+                    <div class="flex justify-end gap-3 pt-2">
+                        <button type="button" class="hc-btn-secondary" @click="closeCreateQueue">Cancelar</button>
+                        <button type="submit" class="hc-btn-primary" :disabled="createQueueLoading">
+                            <span v-if="!createQueueLoading">Crear cola</span>
+                            <span v-else>Creando…</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="lib/vue.js"></script>
+    <script type="module">
+        const { createApp, ref, reactive, computed, watch, onMounted, onBeforeUnmount } = Vue;
+
+        createApp({
+            setup() {
+                const filters = reactive({ term: '' });
+                const user = ref(null);
+                const isLoadingUser = ref(false);
+
+                const queues = ref([]);
+                const isLoadingQueues = ref(false);
+                const queuesError = ref('');
+                const selectedQueue = ref('');
+
+                const queueDetails = ref(null);
+                const queueDetailsError = ref('');
+                const isLoadingQueueDetail = ref(false);
+                const queueDetailsFetchedAt = ref(null);
+
+                const clients = ref([]);
+                const isLoadingClients = ref(false);
+                const clientsError = ref('');
+                const clientsFetchedAt = ref(null);
+
+                const showCreateQueue = ref(false);
+                const newQueueName = ref('');
+                const createQueueError = ref('');
+                const createQueueLoading = ref(false);
+
+                const messageDraft = ref('{
+  "message": "Hola cola"
+}');
+                const writeError = ref('');
+                const writeSuccess = ref('');
+                const isSendingMessage = ref(false);
+
+                const isSidebarOpen = ref(false);
+
+                const detailRefreshTimer = ref(null);
+                const clientsRefreshTimer = ref(null);
+
+                const baseOrigin = window.location.origin;
+
+                const filteredQueues = computed(() => {
+                    const term = filters.term.trim().toLowerCase();
+                    return queues.value
+                        .slice()
+                        .sort((a, b) => a.localeCompare(b))
+                        .filter((name) => !term || name.toLowerCase().includes(term));
+                });
+
+                watch(filteredQueues, (list) => {
+                    if (!list.length) {
+                        return;
+                    }
+                    if (!selectedQueue.value || !list.includes(selectedQueue.value)) {
+                        selectedQueue.value = list[0];
+                    }
+                });
+
+                watch(queues, (list) => {
+                    if (!list.length) {
+                        selectedQueue.value = '';
+                    }
+                });
+
+                watch(() => filters.term, () => {
+                    if (!filteredQueues.value.length) {
+                        return;
+                    }
+                    if (!filteredQueues.value.includes(selectedQueue.value)) {
+                        selectedQueue.value = filteredQueues.value[0];
+                    }
+                });
+
+                const queueMetrics = computed(() => {
+                    const detail = queueDetails.value || {};
+                    return [
+                        { key: 'len', label: 'Mensajes pendientes', value: detail.len ?? '—', description: 'Mensajes listos para entregar.' },
+                        { key: 'writes', label: 'Mensajes recibidos', value: detail.writes ?? '—', description: 'Total histórico de escrituras.' },
+                        { key: 'reads', label: 'Mensajes entregados', value: detail.reads ?? '—', description: 'Total histórico de lecturas.' },
+                    ];
+                });
+
+                const activeClients = computed(() => {
+                    if (!selectedQueue.value) {
+                        return [];
+                    }
+                    return clients.value
+                        .filter((client) => client.queue === selectedQueue.value)
+                        .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+                });
+
+                const curlExample = computed(() => {
+                    if (!selectedQueue.value) {
+                        return '';
+                    }
+                    const queue = selectedQueue.value;
+                    return `curl -X POST\n  -H 'Content-Type: application/json'\n  ${baseOrigin}/v1/queues/${encodeURIComponent(queue)}/write\n  -d '{"message":"Hola Tailon"}'`;
+                });
+
+                function selectQueue(name) {
+                    selectedQueue.value = name;
+                }
+                async function loadUser() {
+                    isLoadingUser.value = true;
+                    try {
+                        const response = await fetch('/auth/me', { credentials: 'include' });
+                        if (!response.ok) {
+                            return;
+                        }
+                        const data = await response.json();
+                        if (data && !data.error) {
+                            user.value = data;
+                        }
+                    } catch (error) {
+                        console.warn('No fue posible obtener la sesión actual.', error);
+                    } finally {
+                        isLoadingUser.value = false;
+                    }
+                }
+
+                async function loadQueues() {
+                    isLoadingQueues.value = true;
+                    queuesError.value = '';
+                    try {
+                        const response = await fetch('/v1/queues');
+                        if (!response.ok) {
+                            throw new Error(`Error ${response.status} al cargar las colas`);
+                        }
+                        const data = await response.json();
+                        queues.value = Array.isArray(data) ? data : [];
+                    } catch (error) {
+                        queues.value = [];
+                        queuesError.value = error?.message || 'No fue posible obtener las colas.';
+                    } finally {
+                        isLoadingQueues.value = false;
+                    }
+                }
+
+                async function fetchQueueDetails(name, silent = false) {
+                    if (!name) {
+                        return;
+                    }
+                    if (!silent) {
+                        isLoadingQueueDetail.value = true;
+                        queueDetailsError.value = '';
+                    }
+                    try {
+                        const response = await fetch(`/v1/queues/${encodeURIComponent(name)}`);
+                        if (!response.ok) {
+                            let description = `Error ${response.status} al obtener la cola.`;
+                            try {
+                                const payload = await response.json();
+                                if (payload?.error?.message) {
+                                    description = payload.error.message;
+                                }
+                            } catch (parseError) {
+                                /* noop */
+                            }
+                            throw new Error(description);
+                        }
+                        const data = await response.json();
+                        queueDetails.value = data;
+                        queueDetailsFetchedAt.value = new Date();
+                    } catch (error) {
+                        queueDetails.value = null;
+                        queueDetailsError.value = error?.message || 'No fue posible obtener el detalle de la cola.';
+                    } finally {
+                        if (!silent) {
+                            isLoadingQueueDetail.value = false;
+                        }
+                    }
+                }
+
+                async function fetchClients(silent = false) {
+                    if (!silent) {
+                        isLoadingClients.value = true;
+                        clientsError.value = '';
+                    }
+                    try {
+                        const response = await fetch('/v1/clients');
+                        if (!response.ok) {
+                            throw new Error(`Error ${response.status} al cargar los clientes.`);
+                        }
+                        const data = await response.json();
+                        let list = [];
+                        if (Array.isArray(data)) {
+                            list = data;
+                        } else if (data && typeof data === 'object') {
+                            list = Object.values(data);
+                        }
+                        clients.value = list;
+                        clientsFetchedAt.value = new Date();
+                    } catch (error) {
+                        clients.value = [];
+                        clientsError.value = error?.message || 'No fue posible obtener los clientes activos.';
+                    } finally {
+                        if (!silent) {
+                            isLoadingClients.value = false;
+                        }
+                    }
+                }
+
+                async function submitCreateQueue() {
+                    createQueueError.value = '';
+                    const name = newQueueName.value.trim();
+                    if (!name) {
+                        createQueueError.value = 'Indica un nombre para la cola.';
+                        return;
+                    }
+                    createQueueLoading.value = true;
+                    try {
+                        const response = await fetch('/v1/queues', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ name }),
+                        });
+                        if (!response.ok) {
+                            let description = `Error ${response.status} al crear la cola.`;
+                            try {
+                                const payload = await response.json();
+                                if (payload?.error?.message) {
+                                    description = payload.error.message;
+                                }
+                            } catch (parseError) {
+                                /* noop */
+                            }
+                            throw new Error(description);
+                        }
+                        await loadQueues();
+                        selectedQueue.value = name;
+                        closeCreateQueue();
+                    } catch (error) {
+                        createQueueError.value = error?.message || 'No fue posible crear la cola.';
+                    } finally {
+                        createQueueLoading.value = false;
+                    }
+                }
+                function openCreateQueue() {
+                    showCreateQueue.value = true;
+                    newQueueName.value = '';
+                    createQueueError.value = '';
+                }
+
+                function closeCreateQueue() {
+                    showCreateQueue.value = false;
+                    newQueueName.value = '';
+                    createQueueError.value = '';
+                }
+
+                async function sendMessage() {
+                    writeError.value = '';
+                    writeSuccess.value = '';
+                    if (!selectedQueue.value) {
+                        writeError.value = 'Selecciona una cola antes de enviar mensajes.';
+                        return;
+                    }
+                    let payload;
+                    try {
+                        payload = JSON.parse(messageDraft.value);
+                    } catch (error) {
+                        writeError.value = 'El mensaje debe ser un JSON válido.';
+                        return;
+                    }
+                    const normalized = JSON.stringify(payload, null, 2);
+                    isSendingMessage.value = true;
+                    try {
+                        const response = await fetch(`/v1/queues/${encodeURIComponent(selectedQueue.value)}/write`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: normalized,
+                        });
+                        if (!response.ok) {
+                            let description = `Error ${response.status} al publicar el mensaje.`;
+                            try {
+                                const payloadError = await response.json();
+                                if (payloadError?.error?.message) {
+                                    description = payloadError.error.message;
+                                }
+                            } catch (parseError) {
+                                /* noop */
+                            }
+                            throw new Error(description);
+                        }
+                        messageDraft.value = normalized;
+                        writeSuccess.value = 'Mensaje publicado correctamente.';
+                        fetchQueueDetails(selectedQueue.value, true);
+                    } catch (error) {
+                        writeError.value = error?.message || 'No fue posible publicar el mensaje.';
+                    } finally {
+                        isSendingMessage.value = false;
+                    }
+                }
+
+                function refreshQueueDetails() {
+                    if (selectedQueue.value) {
+                        fetchQueueDetails(selectedQueue.value);
+                    }
+                }
+
+                function handleKeydown(event) {
+                    if (event.key === 'Escape') {
+                        if (showCreateQueue.value) {
+                            closeCreateQueue();
+                        } else if (isSidebarOpen.value) {
+                            isSidebarOpen.value = false;
+                        }
+                    }
+                }
+
+                watch(showCreateQueue, (open) => {
+                    document.body.style.overflow = open ? 'hidden' : '';
+                    if (open) {
+                        setTimeout(() => {
+                            const input = document.getElementById('queueName');
+                            if (input) {
+                                input.focus();
+                            }
+                        }, 50);
+                    }
+                });
+
+                watch(selectedQueue, (name) => {
+                    if (detailRefreshTimer.value) {
+                        clearInterval(detailRefreshTimer.value);
+                        detailRefreshTimer.value = null;
+                    }
+                    if (clientsRefreshTimer.value) {
+                        clearInterval(clientsRefreshTimer.value);
+                        clientsRefreshTimer.value = null;
+                    }
+                    writeError.value = '';
+                    writeSuccess.value = '';
+                    if (!name) {
+                        queueDetails.value = null;
+                        queueDetailsFetchedAt.value = null;
+                        clients.value = [];
+                        return;
+                    }
+                    fetchQueueDetails(name);
+                    fetchClients();
+                    isSidebarOpen.value = false;
+                    detailRefreshTimer.value = setInterval(() => fetchQueueDetails(name, true), 5000);
+                    clientsRefreshTimer.value = setInterval(() => fetchClients(true), 5000);
+                });
+
+                onMounted(() => {
+                    window.addEventListener('keydown', handleKeydown);
+                    loadUser();
+                    loadQueues();
+                });
+
+                onBeforeUnmount(() => {
+                    window.removeEventListener('keydown', handleKeydown);
+                    if (detailRefreshTimer.value) {
+                        clearInterval(detailRefreshTimer.value);
+                    }
+                    if (clientsRefreshTimer.value) {
+                        clearInterval(clientsRefreshTimer.value);
+                    }
+                    document.body.style.overflow = '';
+                });
+
+                function formatDate(value) {
+                    if (!value) {
+                        return '—';
+                    }
+                    const date = value instanceof Date ? value : new Date(value);
+                    if (Number.isNaN(date.getTime())) {
+                        return '—';
+                    }
+                    return date.toLocaleString();
+                }
+
+                const rtf = new Intl.RelativeTimeFormat('es', { numeric: 'auto' });
+
+                function formatRelative(value) {
+                    if (!value) {
+                        return '—';
+                    }
+                    const date = value instanceof Date ? value : new Date(value);
+                    if (Number.isNaN(date.getTime())) {
+                        return '—';
+                    }
+                    const diff = date.getTime() - Date.now();
+                    const divisions = [
+                        { amount: 60, unit: 'second' },
+                        { amount: 60, unit: 'minute' },
+                        { amount: 24, unit: 'hour' },
+                        { amount: 7, unit: 'day' },
+                        { amount: 4.34524, unit: 'week' },
+                        { amount: 12, unit: 'month' },
+                        { amount: Number.POSITIVE_INFINITY, unit: 'year' },
+                    ];
+                    let duration = diff / 1000;
+                    for (const division of divisions) {
+                        if (Math.abs(duration) < division.amount) {
+                            return rtf.format(Math.round(duration), division.unit);
+                        }
+                        duration /= division.amount;
+                    }
+                    return rtf.format(Math.round(duration), 'year');
+                }
+
+                return {
+                    filters,
+                    user,
+                    isLoadingUser,
+                    queues,
+                    filteredQueues,
+                    isLoadingQueues,
+                    queuesError,
+                    selectedQueue,
+                    queueDetails,
+                    queueDetailsError,
+                    isLoadingQueueDetail,
+                    queueDetailsFetchedAt,
+                    queueMetrics,
+                    activeClients,
+                    isLoadingClients,
+                    clientsError,
+                    clientsFetchedAt,
+                    showCreateQueue,
+                    newQueueName,
+                    createQueueError,
+                    createQueueLoading,
+                    messageDraft,
+                    writeError,
+                    writeSuccess,
+                    isSendingMessage,
+                    curlExample,
+                    isSidebarOpen,
+                    selectQueue,
+                    openCreateQueue,
+                    closeCreateQueue,
+                    submitCreateQueue,
+                    sendMessage,
+                    loadQueues,
+                    refreshQueueDetails,
+                    formatDate,
+                    formatRelative,
+                };
+            },
+        }).mount('#app');
+    </script>
 </body>
 </html>
-
