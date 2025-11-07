@@ -1,72 +1,702 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="utf-8">
-    <title>Tailon - αlpha</title>
+    <title>Tailon Console</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-</head>
-<body>
-
-    <div style="float: right;">
-        <div id="login">
-            <a href="/auth/login">Login</a>
-        </div>
-        <div id="logout" style="display:none;">
-            <img id="user_picture" src="" style="border-radius: 50%; height: 32px; vertical-align: middle;">
-            <span id="user_nick" style="font-weight: bold;"></span>
-            <a href="/auth/logout">Logout</a>
-        </div>
-        <a href="https://github.com/fulldump/tailon" style="display: inline-block; margin: 8px;">
-            <svg aria-hidden="true" height="24" viewBox="0 0 16 16" version="1.1" width="24" data-view-component="true"
-                 class="octicon octicon-mark-github" style="vertical-align: middle; height: 2em;">
-                <path fill-rule="evenodd"
-                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-            </svg>
-        </a>
-    </div>
-
-    <h1>Welcome to Tailon.io</h1>
-
-    <p>
-        Tailon is a really simple queue service to handle millions of messages per second.
-    </p>
-
-    <p>
-        Tailon is free software, here is the source:
-        <a href="https://github.com/fulldump/tailon">
-            <svg aria-hidden="true" height="24" viewBox="0 0 16 16" version="1.1" width="24" data-view-component="true"
-                 class="octicon octicon-mark-github" style="vertical-align: middle; height: 14px;">
-                <path fill-rule="evenodd"
-                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-            </svg>
-            github.com/fulldump/tailon</a>
-    </p>
-
-    <p>
-        Find documentation examples here:
-        <a href="https://github.com/fulldump/tailon/tree/master/doc/examples">
-            <svg aria-hidden="true" height="24" viewBox="0 0 16 16" version="1.1" width="24" data-view-component="true"
-                 class="octicon octicon-mark-github" style="vertical-align: middle; height: 14px;">
-                <path fill-rule="evenodd"
-                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-            </svg>
-            github.com/fulldump/tailon/tree/master/doc/examples</a>
-    </p>
-
-    <script>
-        function id(s) {
-            return document.getElementById(s);
+    <link rel="icon" type="image/png" href="/favicon.ico">
+    <link rel="stylesheet" href="/lib/tailwind.min.css">
+    <style>
+        body {
+            background: radial-gradient(circle at top left, rgba(29, 78, 216, 0.12), transparent 55%),
+                        radial-gradient(circle at bottom right, rgba(220, 38, 38, 0.12), transparent 55%),
+                        #050b16;
         }
+        ::selection {
+            background-color: rgba(59, 130, 246, 0.4);
+        }
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 6px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background-color: rgba(100, 116, 139, 0.5);
+            border-radius: 9999px;
+        }
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.2s ease;
+        }
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+        }
+        .slide-enter-active,
+        .slide-leave-active {
+            transition: transform 0.25s ease, opacity 0.25s ease;
+        }
+        .slide-enter-from,
+        .slide-leave-to {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-100">
+    <div id="app"></div>
 
-        fetch('/auth/me').then(resp => resp.json()).then(me => {
-            if (me.error) return;
-            id('login').style.display = 'none';
-            id('logout').style.display = 'block';
-            id('user_picture').setAttribute('src', me.picture);
-            id('user_nick').innerText = me.nick;
-        })
+    <script src="/lib/vue.global.prod.js"></script>
+    <script src="/lib/vue-router.js"></script>
+    <script>
+        const { createApp, ref, reactive, computed, onMounted, provide, inject, watch } = Vue;
+        const { createRouter, createWebHashHistory, useRoute, useRouter } = VueRouter;
+
+        const useQueuesStore = () => {
+            const queues = ref([]);
+            const loading = ref(false);
+            const error = ref(null);
+
+            const fetchQueues = async () => {
+                loading.value = true;
+                error.value = null;
+                try {
+                    const response = await fetch('/v1/queues');
+                    if (!response.ok) {
+                        throw new Error('No fue posible obtener las colas');
+                    }
+                    const data = await response.json();
+                    queues.value = Array.isArray(data) ? data : [];
+                } catch (err) {
+                    console.error(err);
+                    error.value = err.message || 'Error inesperado cargando las colas';
+                } finally {
+                    loading.value = false;
+                }
+            };
+
+            const createQueue = async (name) => {
+                const trimmed = (name || '').trim();
+                if (!trimmed) {
+                    throw new Error('El nombre de la cola es obligatorio');
+                }
+                const payload = { name: trimmed };
+                const response = await fetch('/v1/queues', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload) + '\n'
+                });
+                if (!response.ok) {
+                    let message = 'No fue posible crear la cola';
+                    try {
+                        const errorBody = await response.json();
+                        if (errorBody && errorBody.error && errorBody.error.description) {
+                            message = errorBody.error.description;
+                        }
+                    } catch (_) {
+                        // ignore json parse issues
+                    }
+                    throw new Error(message);
+                }
+                await fetchQueues();
+                return trimmed;
+            };
+
+            const sortedQueues = computed(() => {
+                return [...queues.value].sort((a, b) => a.localeCompare(b));
+            });
+
+            return { queues, loading, error, fetchQueues, createQueue, sortedQueues };
+        };
+
+        const useAuth = () => {
+            const state = reactive({
+                status: 'loading',
+                user: null
+            });
+
+            const fetchAuth = async () => {
+                state.status = 'loading';
+                try {
+                    const response = await fetch('/auth/me');
+                    if (!response.ok) {
+                        state.status = 'anonymous';
+                        state.user = null;
+                        return;
+                    }
+                    const data = await response.json();
+                    if (data && !data.error) {
+                        state.user = data;
+                        state.status = 'authenticated';
+                    } else {
+                        state.status = 'anonymous';
+                        state.user = null;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    state.status = 'anonymous';
+                    state.user = null;
+                }
+            };
+
+            fetchAuth();
+
+            return { state, fetchAuth };
+        };
+
+        const QueueSidebar = {
+            name: 'QueueSidebar',
+            props: {
+                mobile: {
+                    type: Boolean,
+                    default: false
+                }
+            },
+            setup(props) {
+                const store = inject('queuesStore');
+                const router = useRouter();
+                const route = useRoute();
+
+                const showCreate = ref(false);
+                const queueName = ref('');
+                const creating = ref(false);
+                const formError = ref('');
+                const successMessage = ref('');
+
+                const currentQueue = computed(() => route.params.name);
+
+                const submit = async () => {
+                    formError.value = '';
+                    successMessage.value = '';
+                    try {
+                        creating.value = true;
+                        const createdName = await store.createQueue(queueName.value);
+                        queueName.value = '';
+                        successMessage.value = `Cola «${createdName}» creada`;
+                        if (currentQueue.value !== createdName) {
+                            router.push({ name: 'queue', params: { name: createdName } });
+                        }
+                    } catch (err) {
+                        formError.value = err.message || 'No fue posible crear la cola';
+                    } finally {
+                        creating.value = false;
+                        setTimeout(() => {
+                            successMessage.value = '';
+                        }, 3000);
+                    }
+                };
+
+                onMounted(() => {
+                    store.fetchQueues();
+                });
+
+                const containerClasses = computed(() => {
+                    return props.mobile
+                        ? 'flex flex-col w-full h-full bg-slate-950/90 border-r border-slate-800/60 backdrop-blur-xl'
+                        : 'hidden lg:flex lg:flex-col w-80 border-r border-slate-800/60 backdrop-blur-sm bg-slate-950/70';
+                });
+
+                return {
+                    store,
+                    showCreate,
+                    queueName,
+                    creating,
+                    formError,
+                    successMessage,
+                    submit,
+                    currentQueue,
+                    containerClasses
+                };
+            },
+            template: `
+                <aside :class="containerClasses">
+                    <div class="p-6 border-b border-slate-800/60">
+                        <h1 class="text-xl font-semibold">Tailon Console</h1>
+                        <p class="text-sm text-slate-400 mt-1">Administración profesional de colas</p>
+                        <button
+                            class="mt-4 inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-sky-500/10 text-sky-300 hover:bg-sky-500/20 transition"
+                            @click="store.fetchQueues"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v6h6M20 20v-6h-6M5 19a9 9 0 0014.9-2M19 5a9 9 0 00-14.9 2" />
+                            </svg>
+                            Actualizar
+                        </button>
+                    </div>
+                    <div class="p-6 border-b border-slate-800/60 space-y-4">
+                        <button
+                            class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-500 text-slate-900 font-semibold shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 transition"
+                            @click="showCreate = !showCreate"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v12m6-6H6" />
+                            </svg>
+                            Nueva cola
+                        </button>
+                        <div v-if="showCreate" class="space-y-3 bg-slate-900/60 border border-slate-800/60 rounded-2xl p-4">
+                            <label class="text-sm font-medium text-slate-300" for="queue-name">Nombre de la cola</label>
+                            <input
+                                id="queue-name"
+                                v-model="queueName"
+                                type="text"
+                                placeholder="ej. pedidos"
+                                class="w-full px-3 py-2 rounded-lg bg-slate-950/80 border border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                            />
+                            <button
+                                class="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 text-slate-900 font-semibold hover:bg-emerald-400 transition disabled:opacity-70"
+                                @click="submit"
+                                :disabled="creating"
+                            >
+                                <svg v-if="creating" class="animate-spin h-4 w-4 text-slate-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                </svg>
+                                <span v-else>Crear</span>
+                            </button>
+                            <p v-if="formError" class="text-sm text-rose-400">{{ formError }}</p>
+                            <p v-if="successMessage" class="text-sm text-emerald-400">{{ successMessage }}</p>
+                        </div>
+                    </div>
+                    <div class="flex-1 overflow-y-auto scrollbar-thin">
+                        <div v-if="store.loading" class="p-6 text-sm text-slate-400">Cargando colas…</div>
+                        <div v-else-if="store.error" class="p-6 text-sm text-rose-400">{{ store.error }}</div>
+                        <ul v-else class="p-2 space-y-1">
+                            <li v-if="!store.sortedQueues.length" class="px-4 py-3 text-sm text-slate-400">No hay colas creadas.</li>
+                            <li v-for="queue in store.sortedQueues" :key="queue">
+                                <router-link
+                                    :to="{ name: 'queue', params: { name: queue } }"
+                                    class="block px-4 py-3 rounded-xl transition"
+                                    :class="currentQueue === queue ? 'bg-slate-800/80 text-white shadow-inner shadow-slate-900/60' : 'hover:bg-slate-900/70 text-slate-300'"
+                                >
+                                    <div class="text-sm font-semibold truncate">{{ queue }}</div>
+                                    <div class="text-xs text-slate-400">Cola de mensajes</div>
+                                </router-link>
+                            </li>
+                        </ul>
+                    </div>
+                </aside>
+            `
+        };
+
+        const MobileSidebar = {
+            name: 'MobileSidebar',
+            components: { QueueSidebar },
+            setup() {
+                const open = ref(false);
+                const store = inject('queuesStore');
+                const route = useRoute();
+                const router = useRouter();
+
+                const toggle = () => {
+                    open.value = !open.value;
+                };
+
+                watch(() => route.fullPath, () => {
+                    open.value = false;
+                });
+
+                onMounted(() => {
+                    store.fetchQueues();
+                });
+
+                return { open, toggle };
+            },
+            template: `
+                <div class="lg:hidden">
+                    <button
+                        class="fixed top-4 left-4 z-40 inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-900/80 border border-slate-800/70 text-slate-200 shadow-lg shadow-slate-900/60"
+                        @click="toggle"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    <transition name="fade">
+                        <div v-if="open" class="fixed inset-0 z-30 bg-slate-900/80 backdrop-blur-sm"></div>
+                    </transition>
+                    <transition name="slide">
+                        <div v-if="open" class="fixed inset-y-0 left-0 z-40 w-full max-w-xs">
+                            <QueueSidebar mobile />
+                        </div>
+                    </transition>
+                </div>
+            `
+        };
+
+        const TopBar = {
+            name: 'TopBar',
+            setup() {
+                const auth = inject('auth');
+                return { auth };
+            },
+            template: `
+                <header class="flex items-center justify-between px-6 py-4 border-b border-slate-800/60 bg-slate-950/40 backdrop-blur-sm">
+                    <div>
+                        <h2 class="text-lg font-semibold">Servicio Tailon</h2>
+                        <p class="text-sm text-slate-400">Consola operativa</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <template v-if="auth.state.status === 'authenticated'">
+                            <div class="flex items-center gap-3 bg-slate-900/60 border border-slate-800/60 px-3 py-2 rounded-full">
+                                <img :src="auth.state.user.picture" alt="avatar" class="w-9 h-9 rounded-full border border-slate-800/80 object-cover">
+                                <div>
+                                    <div class="text-sm font-semibold">{{ auth.state.user.nick }}</div>
+                                    <div class="text-xs text-slate-400">Autenticado</div>
+                                </div>
+                            </div>
+                            <a href="/auth/logout" class="text-sm font-semibold text-rose-300 hover:text-rose-200">Salir</a>
+                        </template>
+                        <template v-else>
+                            <a href="/auth/login" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-sky-500 text-slate-900 font-semibold hover:bg-sky-400 transition">
+                                Iniciar sesión
+                            </a>
+                        </template>
+                    </div>
+                </header>
+            `
+        };
+
+        const QueueEmptyState = {
+            name: 'QueueEmptyState',
+            template: `
+                <section class="px-8 py-16">
+                    <div class="max-w-xl mx-auto text-center space-y-6">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-900/60 border border-slate-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7h18M3 12h18M3 17h18" />
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-semibold">Crea tu primera cola o selecciona una existente</h2>
+                        <p class="text-slate-400">Utiliza el panel lateral para gestionar colas, publicar mensajes y consumirlos en tiempo real.</p>
+                    </div>
+                </section>
+            `
+        };
+
+        const QueueDetail = {
+            name: 'QueueDetail',
+            setup() {
+                const route = useRoute();
+                const queueInfo = ref(null);
+                const infoLoading = ref(false);
+                const infoError = ref('');
+
+                const publishBody = ref('{
+    "evento": "ejemplo",
+    "payload": { "mensaje": "Hola Tailon" }
+}');
+                const publishError = ref('');
+                const publishSuccess = ref('');
+                const publishing = ref(false);
+
+                const fetchLimit = ref(5);
+                const messages = ref([]);
+                const messagesLoading = ref(false);
+                const messagesError = ref('');
+                const lastFetch = ref(null);
+
+                const queueName = computed(() => route.params.name);
+
+                const fetchInfo = async () => {
+                    if (!queueName.value) {
+                        return;
+                    }
+                    infoLoading.value = true;
+                    infoError.value = '';
+                    try {
+                        const response = await fetch(`/v1/queues/${encodeURIComponent(queueName.value)}`);
+                        if (!response.ok) {
+                            if (response.status === 404) {
+                                throw new Error('La cola no existe o fue eliminada');
+                            }
+                            throw new Error('No fue posible obtener la información de la cola');
+                        }
+                        queueInfo.value = await response.json();
+                    } catch (err) {
+                        queueInfo.value = null;
+                        infoError.value = err.message || 'Error inesperado consultando la cola';
+                    } finally {
+                        infoLoading.value = false;
+                    }
+                };
+
+                const publishMessage = async () => {
+                    publishError.value = '';
+                    publishSuccess.value = '';
+                    try {
+                        let parsed;
+                        try {
+                            parsed = JSON.parse(publishBody.value);
+                        } catch (err) {
+                            throw new Error('El mensaje debe ser JSON válido');
+                        }
+                        publishing.value = true;
+                        const response = await fetch(`/v1/queues/${encodeURIComponent(queueName.value)}:write`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(parsed) + '\n'
+                        });
+                        if (!response.ok) {
+                            throw new Error('No fue posible publicar el mensaje');
+                        }
+                        publishSuccess.value = 'Mensaje publicado en la cola';
+                        messages.value = [];
+                        lastFetch.value = null;
+                    } catch (err) {
+                        publishError.value = err.message || 'Error desconocido al publicar';
+                    } finally {
+                        publishing.value = false;
+                        setTimeout(() => {
+                            publishSuccess.value = '';
+                        }, 3000);
+                    }
+                };
+
+                const parseLine = (line) => {
+                    if (!line.trim()) return null;
+                    try {
+                        const parsed = JSON.parse(line);
+                        return {
+                            raw: line,
+                            pretty: JSON.stringify(parsed, null, 2)
+                        };
+                    } catch (_) {
+                        return {
+                            raw: line,
+                            pretty: line
+                        };
+                    }
+                };
+
+                const fetchMessages = async () => {
+                    messagesLoading.value = true;
+                    messagesError.value = '';
+                    messages.value = [];
+                    try {
+                        const limit = Math.max(1, Number(fetchLimit.value) || 1);
+                        const response = await fetch(`/v1/queues/${encodeURIComponent(queueName.value)}:read`, {
+                            headers: {
+                                'Limit': String(limit)
+                            }
+                        });
+                        if (!response.ok) {
+                            throw new Error('No fue posible obtener mensajes');
+                        }
+                        const text = await response.text();
+                        const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+                        messages.value = lines
+                            .map(parseLine)
+                            .filter(Boolean)
+                            .map((item, idx) => ({ id: idx + 1, ...item }));
+                        lastFetch.value = new Date();
+                    } catch (err) {
+                        messagesError.value = err.message || 'Error inesperado obteniendo mensajes';
+                    } finally {
+                        messagesLoading.value = false;
+                    }
+                };
+
+                watch(() => queueName.value, () => {
+                    fetchInfo();
+                    messages.value = [];
+                    messagesError.value = '';
+                    lastFetch.value = null;
+                }, { immediate: true });
+
+                const streamingCommand = computed(() => {
+                    if (!queueName.value) return '';
+                    const base = `${window.location.origin}/v1/queues/${encodeURIComponent(queueName.value)}:read`;
+                    const limit = Math.max(1, Number(fetchLimit.value) || 1);
+                    return `curl -N -H "Limit: ${limit}" '${base}'`;
+                });
+
+                return {
+                    queueName,
+                    queueInfo,
+                    infoLoading,
+                    infoError,
+                    fetchInfo,
+                    publishBody,
+                    publishError,
+                    publishSuccess,
+                    publishMessage,
+                    publishing,
+                    fetchLimit,
+                    fetchMessages,
+                    messages,
+                    messagesLoading,
+                    messagesError,
+                    lastFetch,
+                    streamingCommand
+                };
+            },
+            template: `
+                <section class="px-6 py-8">
+                    <div class="max-w-5xl mx-auto space-y-8">
+                        <div class="flex flex-wrap items-center justify-between gap-4">
+                            <div>
+                                <p class="text-sm uppercase tracking-[0.3em] text-slate-500">Cola seleccionada</p>
+                                <h1 class="text-3xl font-semibold text-white">{{ queueName }}</h1>
+                            </div>
+                            <button
+                                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-800/70 text-slate-200 hover:bg-slate-900"
+                                @click="fetchInfo"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.5 4.5l3 3-3 3m12 0l3-3-3-3M6 7.5h12m-12 9l3 3-3 3m12 0l3-3-3-3M6 16.5h12" />
+                                </svg>
+                                Actualizar métricas
+                            </button>
+                        </div>
+
+                        <div v-if="infoLoading" class="bg-slate-900/60 border border-slate-800/60 rounded-2xl p-6 text-slate-300">
+                            Obteniendo información de la cola…
+                        </div>
+                        <div v-else-if="infoError" class="bg-rose-500/10 border border-rose-500/40 text-rose-200 rounded-2xl p-6">
+                            {{ infoError }}
+                        </div>
+                        <div v-else-if="queueInfo" class="grid gap-4 md:grid-cols-3">
+                            <div class="bg-slate-900/70 border border-slate-800/70 rounded-2xl p-6">
+                                <p class="text-sm text-slate-400">Nombre</p>
+                                <p class="text-xl font-semibold text-white truncate">{{ queueInfo.name }}</p>
+                            </div>
+                            <div v-if="queueInfo.len !== undefined" class="bg-slate-900/70 border border-slate-800/70 rounded-2xl p-6">
+                                <p class="text-sm text-slate-400">Mensajes pendientes</p>
+                                <p class="text-2xl font-semibold text-emerald-400">{{ queueInfo.len }}</p>
+                            </div>
+                            <div v-if="queueInfo.reads !== undefined" class="bg-slate-900/70 border border-slate-800/70 rounded-2xl p-6">
+                                <p class="text-sm text-slate-400">Lecturas</p>
+                                <p class="text-2xl font-semibold text-sky-400">{{ queueInfo.reads }}</p>
+                            </div>
+                            <div v-if="queueInfo.writes !== undefined" class="bg-slate-900/70 border border-slate-800/70 rounded-2xl p-6">
+                                <p class="text-sm text-slate-400">Escrituras</p>
+                                <p class="text-2xl font-semibold text-violet-400">{{ queueInfo.writes }}</p>
+                            </div>
+                        </div>
+
+                        <div class="grid gap-6 lg:grid-cols-2">
+                            <div class="bg-slate-900/60 border border-slate-800/60 rounded-2xl p-6 space-y-4">
+                                <div>
+                                    <h2 class="text-xl font-semibold">Publicar mensaje</h2>
+                                    <p class="text-sm text-slate-400">Introduce un JSON válido para agregarlo a la cola.</p>
+                                </div>
+                                <textarea
+                                    v-model="publishBody"
+                                    rows="10"
+                                    class="w-full px-4 py-3 rounded-xl bg-slate-950/80 border border-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-sm font-mono"
+                                ></textarea>
+                                <div class="flex flex-wrap items-center justify-between gap-4">
+                                    <div class="text-sm">
+                                        <p v-if="publishError" class="text-rose-300">{{ publishError }}</p>
+                                        <p v-else-if="publishSuccess" class="text-emerald-400">{{ publishSuccess }}</p>
+                                        <p v-else class="text-slate-400">Los mensajes se envían en formato JSON individual.</p>
+                                    </div>
+                                    <button
+                                        class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-emerald-500 text-slate-900 font-semibold hover:bg-emerald-400 transition disabled:opacity-70"
+                                        @click="publishMessage"
+                                        :disabled="publishing"
+                                    >
+                                        <svg v-if="publishing" class="animate-spin h-4 w-4 text-slate-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                        </svg>
+                                        <span v-else>Publicar</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-900/60 border border-slate-800/60 rounded-2xl p-6 space-y-4">
+                                <div>
+                                    <h2 class="text-xl font-semibold">Consultar mensajes</h2>
+                                    <p class="text-sm text-slate-400">Recupera los próximos mensajes disponibles en la cola.</p>
+                                </div>
+                                <div class="flex flex-wrap items-end gap-4">
+                                    <label class="text-sm text-slate-300 flex flex-col">
+                                        Cantidad
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            max="1000"
+                                            v-model.number="fetchLimit"
+                                            class="mt-1 px-3 py-2 rounded-lg bg-slate-950/80 border border-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400"
+                                        />
+                                    </label>
+                                    <button
+                                        class="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-sky-500 text-slate-900 font-semibold hover:bg-sky-400 transition"
+                                        @click="fetchMessages"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 7h16M4 12h16m-7 5h7" />
+                                        </svg>
+                                        Obtener mensajes
+                                    </button>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-slate-400">Streaming en terminal:</p>
+                                    <code class="block mt-2 text-xs font-mono bg-slate-950/80 border border-slate-800 rounded-lg px-4 py-3 text-slate-300 break-all">{{ streamingCommand }}</code>
+                                </div>
+                                <div v-if="messagesLoading" class="text-slate-300 text-sm">Consultando mensajes…</div>
+                                <div v-else-if="messagesError" class="text-rose-300 text-sm">{{ messagesError }}</div>
+                                <div v-else-if="messages.length" class="space-y-3">
+                                    <div class="text-xs text-slate-400">
+                                        Última consulta: {{ new Date(lastFetch).toLocaleTimeString() }}
+                                    </div>
+                                    <ul class="space-y-3">
+                                        <li v-for="message in messages" :key="message.id" class="bg-slate-950/70 border border-slate-800 rounded-xl p-4">
+                                            <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                                                <span>Mensaje #{{ message.id }}</span>
+                                            </div>
+                                            <pre class="text-xs text-slate-200 whitespace-pre-wrap font-mono">{{ message.pretty }}</pre>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div v-else class="text-sm text-slate-400">No hay mensajes disponibles en este momento.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            `
+        };
+
+        const routes = [
+            { path: '/', name: 'home', component: QueueEmptyState },
+            { path: '/queues/:name', name: 'queue', component: QueueDetail }
+        ];
+
+        const router = createRouter({
+            history: createWebHashHistory(),
+            routes
+        });
+
+        const App = {
+            name: 'AppRoot',
+            components: { QueueSidebar, MobileSidebar, TopBar },
+            setup() {
+                const queuesStore = useQueuesStore();
+                const auth = useAuth();
+
+                provide('queuesStore', queuesStore);
+                provide('auth', auth);
+
+                return { };
+            },
+            template: `
+                <div class="min-h-screen flex">
+                    <QueueSidebar />
+                    <MobileSidebar />
+                    <div class="flex-1 flex flex-col min-h-screen">
+                        <TopBar />
+                        <main class="flex-1 overflow-y-auto">
+                            <router-view />
+                        </main>
+                    </div>
+                </div>
+            `
+        };
+
+        createApp(App).use(router).mount('#app');
     </script>
-
 </body>
 </html>
-
