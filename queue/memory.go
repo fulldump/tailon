@@ -2,6 +2,7 @@ package queue
 
 import (
 	"fmt"
+	"sort"
 	"sync"
 	"sync/atomic"
 )
@@ -32,11 +33,16 @@ func (m *MemoryService) GetQueue(name string) (Queue, error) {
 
 func (m *MemoryService) ListQueues() ([]string, error) {
 
-	result := []string{}
+	m.QueuesMutex.RLock()
+	defer m.QueuesMutex.RUnlock()
+
+	result := make([]string, 0, len(m.Queues))
 
 	for name := range m.Queues {
 		result = append(result, name)
 	}
+
+	sort.Strings(result)
 
 	return result, nil
 }
