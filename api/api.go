@@ -193,6 +193,7 @@ func Write(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	}
 
 	j := json.NewDecoder(r.Body)
+	w.WriteHeader(http.StatusOK)
 
 	for {
 		message := queue.JSON{}
