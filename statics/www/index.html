@@ -1,72 +1,578 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="utf-8">
-    <title>Tailon - αlpha</title>
+    <title>Tailon Console</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <link rel="stylesheet" href="/lib/tailwind.min.css">
+    <link rel="stylesheet" href="/lib/hcds.css">
+    <style>
+        [v-cloak] { display: none; }
+    </style>
 </head>
 <body>
+    <div id="app" v-cloak class="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(86,102,245,0.12),_transparent_55%)]">
+        <div class="flex h-screen overflow-hidden">
+            <aside class="w-80 shrink-0 border-r border-slate-200/80 bg-white/80 backdrop-blur-xl flex flex-col">
+                <div class="px-6 pt-8 pb-6 border-b border-slate-200/70">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500">Tailon</p>
+                            <h1 class="mt-2 text-2xl font-semibold text-slate-900">Consola</h1>
+                        </div>
+                        <span class="hc-chip">αlpha</span>
+                    </div>
+                    <div class="mt-6 space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Filtrar colas</label>
+                            <div class="relative">
+                                <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M12.9 14.32a8 8 0 111.414-1.414l3.387 3.387a1 1 0 01-1.414 1.414l-3.387-3.387zM14 8a6 6 0 11-12 0 6 6 0 0112 0z" clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                                <input v-model.trim="filterTerm" type="search" placeholder="Buscar por nombre" class="hc-input pl-10 pr-3" autocomplete="off">
+                            </div>
+                        </div>
+                        <button type="button" class="hc-button hc-button--primary w-full justify-center" @click="openCreateModal">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
+                            </svg>
+                            <span>Nueva cola</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-y-auto px-4 py-4 space-y-3 hc-scrollbar">
+                    <template v-if="loadingQueues">
+                        <div class="hc-card p-5 text-center text-sm text-slate-600">Cargando colas…</div>
+                    </template>
+                    <template v-else>
+                        <div v-if="queueError" class="hc-card p-5 text-sm text-red-600 border border-red-200 bg-red-50/70">
+                            <p class="font-semibold text-red-700">No se pudo cargar la lista.</p>
+                            <p class="mt-2">{{ queueError }}</p>
+                            <button type="button" class="mt-3 hc-button hc-button--secondary w-full justify-center" @click="fetchQueues">Reintentar</button>
+                        </div>
+                        <template v-else>
+                            <p v-if="!queues.length" class="text-sm text-slate-500 leading-relaxed">
+                                Aún no has creado colas. Usa «Nueva cola» para comenzar.
+                            </p>
+                            <p v-else-if="!filteredQueues.length" class="text-sm text-slate-500 leading-relaxed">
+                                No hay resultados para «{{ filterTerm }}».
+                            </p>
+                            <ul v-else class="space-y-2">
+                                <li v-for="queue in filteredQueues" :key="queue">
+                                    <button type="button" class="hc-sidebar-item w-full text-left"
+                                            :class="{ 'is-active': queue === selectedQueue }"
+                                            @click="selectQueue(queue)">
+                                        <div class="flex items-center justify-between gap-3">
+                                            <span class="truncate">{{ queue }}</span>
+                                            <span aria-hidden="true" class="text-lg leading-none opacity-70">›</span>
+                                        </div>
+                                    </button>
+                                </li>
+                            </ul>
+                        </template>
+                    </template>
+                </div>
+            </aside>
+            <main class="flex-1 flex flex-col">
+                <header class="bg-white/80 backdrop-blur border-b border-slate-200/70 px-10 py-7 flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+                    <div>
+                        <p class="text-xs uppercase tracking-wide text-slate-500 font-semibold">Cola seleccionada</p>
+                        <h2 class="mt-2 text-3xl font-semibold" :class="selectedQueue ? 'text-slate-900' : 'text-slate-400'">
+                            {{ selectedQueue ? selectedQueue : 'Selecciona una cola' }}
+                        </h2>
+                        <p class="mt-2 text-sm text-slate-500" v-if="selectedQueue">
+                            Gestiona métricas y clientes activos de Tailon en tiempo real.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div v-if="me" class="flex items-center gap-3 rounded-lg border border-slate-200 bg-white/80 px-3 py-2 shadow-sm">
+                            <img v-if="me.picture" :src="me.picture" alt="Avatar" class="h-10 w-10 rounded-full object-cover border border-slate-200">
+                            <div>
+                                <p class="text-sm font-semibold text-slate-900">{{ me.nick }}</p>
+                                <a href="/auth/logout" class="text-xs font-medium text-slate-500 hover:text-slate-700">Cerrar sesión</a>
+                            </div>
+                        </div>
+                        <a v-else href="/auth/login" class="hc-button hc-button--secondary">Iniciar sesión</a>
+                    </div>
+                </header>
+                <section class="flex-1 overflow-y-auto px-10 py-8 space-y-6 hc-scrollbar">
+                    <div v-if="!selectedQueue" class="hc-card p-10 text-center">
+                        <h3 class="text-xl font-semibold text-slate-800">Selecciona una cola</h3>
+                        <p class="mt-3 text-slate-500">Elige una cola de la barra lateral para visualizar sus métricas y clientes activos.</p>
+                    </div>
+                    <template v-else>
+                        <div v-if="detailsLoading" class="hc-card p-10 text-center">
+                            <div class="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-slate-200" style="border-top-color: var(--color-brand-500);"></div>
+                            <p class="mt-4 text-slate-600">Obteniendo métricas de la cola…</p>
+                        </div>
+                        <div v-else-if="detailsError" class="hc-card p-8 space-y-4">
+                            <div>
+                                <h3 class="text-lg font-semibold text-slate-900">No se pudieron cargar las métricas</h3>
+                                <p class="mt-2 text-slate-600">{{ detailsError }}</p>
+                            </div>
+                            <div class="flex flex-wrap gap-3">
+                                <button type="button" class="hc-button hc-button--primary" @click="fetchQueueDetails()">Reintentar</button>
+                                <button type="button" class="hc-button hc-button--secondary" @click="openFeedback('Ayuda', 'Revisa que el servicio Tailon esté disponible y vuelve a intentarlo.', 'info')">Ver ayuda</button>
+                            </div>
+                        </div>
+                        <template v-else>
+                            <div class="grid gap-6 md:grid-cols-3">
+                                <div class="hc-card p-6">
+                                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Mensajes en cola</p>
+                                    <p class="mt-3 text-3xl font-semibold text-slate-900">{{ formattedLength }}</p>
+                                    <p class="mt-2 text-sm text-slate-500">Mensajes pendientes de ser consumidos.</p>
+                                </div>
+                                <div class="hc-card p-6">
+                                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Total lecturas</p>
+                                    <p class="mt-3 text-3xl font-semibold text-slate-900">{{ formattedReads }}</p>
+                                    <p class="mt-2 text-sm text-slate-500">Mensajes entregados desde el arranque.</p>
+                                </div>
+                                <div class="hc-card p-6">
+                                    <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Total escrituras</p>
+                                    <p class="mt-3 text-3xl font-semibold text-slate-900">{{ formattedWrites }}</p>
+                                    <p class="mt-2 text-sm text-slate-500">Mensajes producidos en la cola.</p>
+                                </div>
+                            </div>
+                            <div class="grid gap-6 lg:grid-cols-3">
+                                <div class="hc-card p-6 lg:col-span-2 space-y-5">
+                                    <div class="flex flex-wrap items-start justify-between gap-4">
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-slate-900">Clientes activos</h3>
+                                            <p class="mt-1 text-sm text-slate-500">Conexiones que actualmente leen o escriben en la cola.</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-xs uppercase tracking-wide text-slate-400 font-semibold">Actualizado</p>
+                                            <p class="text-sm text-slate-500" v-if="clientsUpdatedAt">{{ formatDateTime(clientsUpdatedAt) }}</p>
+                                            <p class="text-sm text-slate-400" v-else>—</p>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div v-if="clientsLoading" class="flex items-center justify-center gap-3 rounded-lg border border-dashed border-slate-200 bg-white/70 py-6 text-sm text-slate-500">
+                                            <span class="inline-flex h-5 w-5 animate-spin rounded-full border-2 border-slate-300" style="border-top-color: var(--color-brand-500);"></span>
+                                            <span>Cargando clientes…</span>
+                                        </div>
+                                        <div v-else-if="clientsError" class="rounded-lg border border-red-200 bg-red-50/70 p-5 text-sm text-red-600">
+                                            <p>{{ clientsError }}</p>
+                                            <button type="button" class="mt-3 hc-button hc-button--secondary" @click="fetchClients">Reintentar</button>
+                                        </div>
+                                        <div v-else-if="!clientsForSelected.length" class="rounded-lg border border-dashed border-slate-200 bg-white/70 p-6 text-center text-sm text-slate-500">
+                                            No hay clientes activos en esta cola.
+                                        </div>
+                                        <ul v-else class="space-y-3">
+                                            <li v-for="client in clientsForSelected" :key="client.id" class="rounded-xl border border-slate-200/70 bg-white/80 p-4 transition hover:border-slate-300 hover:shadow-sm">
+                                                <div class="flex flex-wrap items-center justify-between gap-3">
+                                                    <div>
+                                                        <p class="text-sm font-semibold text-slate-900">{{ client.id }}</p>
+                                                        <p class="text-xs text-slate-500">Desde {{ formatDateTime(client.start) }}</p>
+                                                    </div>
+                                                    <div class="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+                                                        <span class="hc-badge hc-badge--success">Lecturas: {{ formatNumber(client.reads) }}</span>
+                                                        <span class="hc-badge">Escrituras: {{ formatNumber(client.writes) }}</span>
+                                                        <span class="hc-badge">IP: {{ client.ip }}</span>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="hc-card p-6 space-y-4">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-slate-900">Acciones rápidas</h3>
+                                        <p class="mt-1 text-sm text-slate-500">Sincroniza métricas manualmente o crea nuevas colas.</p>
+                                    </div>
+                                    <div class="space-y-3">
+                                        <button type="button" class="hc-button hc-button--primary w-full" @click="fetchQueueDetails()">Actualizar métricas</button>
+                                        <button type="button" class="hc-button hc-button--secondary w-full" @click="fetchClients">Actualizar clientes</button>
+                                        <button type="button" class="hc-button hc-button--ghost w-full" @click="openCreateModal">Crear otra cola</button>
+                                    </div>
+                                    <div class="rounded-lg border border-slate-200 bg-slate-50/80 p-4 text-xs text-slate-500 leading-relaxed">
+                                        Última sincronización: <span class="font-semibold text-slate-700">{{ lastUpdatedLabel }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </template>
+                </section>
+            </main>
+        </div>
 
-    <div style="float: right;">
-        <div id="login">
-            <a href="/auth/login">Login</a>
+        <div v-if="showCreateModal" class="hc-dialog-backdrop">
+            <div class="hc-dialog-panel" role="dialog" aria-modal="true">
+                <button type="button" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600" @click="closeCreateModal" aria-label="Cerrar">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M6 18L18 6" />
+                    </svg>
+                </button>
+                <h2>Crea una nueva cola</h2>
+                <p>Elige un nombre único. Puedes usar letras, números y guiones medios.</p>
+                <form class="mt-6 space-y-4" @submit.prevent="createQueue">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Nombre de la cola</label>
+                        <input v-model.trim="newQueueName" type="text" class="hc-input" placeholder="ej. facturacion-eventos" autocomplete="off" required>
+                        <p v-if="createError" class="mt-2 text-sm text-red-600">{{ createError }}</p>
+                    </div>
+                    <div class="flex flex-wrap justify-end gap-3">
+                        <button type="button" class="hc-button hc-button--ghost" @click="closeCreateModal">Cancelar</button>
+                        <button type="submit" class="hc-button hc-button--primary" :disabled="createLoading">
+                            <span v-if="createLoading" class="inline-flex h-4 w-4 animate-spin rounded-full border-2 border-white" style="border-top-color: transparent;"></span>
+                            <span>Crear cola</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-        <div id="logout" style="display:none;">
-            <img id="user_picture" src="" style="border-radius: 50%; height: 32px; vertical-align: middle;">
-            <span id="user_nick" style="font-weight: bold;"></span>
-            <a href="/auth/logout">Logout</a>
+
+        <div v-if="feedback.visible" class="hc-dialog-backdrop">
+            <div class="hc-dialog-panel" :class="{ 'hc-card--muted': feedback.variant === 'success' }">
+                <h2>{{ feedback.title }}</h2>
+                <p>{{ feedback.message }}</p>
+                <div class="mt-6 flex justify-end">
+                    <button type="button" class="hc-button hc-button--primary" @click="closeFeedback">Entendido</button>
+                </div>
+            </div>
         </div>
-        <a href="https://github.com/fulldump/tailon" style="display: inline-block; margin: 8px;">
-            <svg aria-hidden="true" height="24" viewBox="0 0 16 16" version="1.1" width="24" data-view-component="true"
-                 class="octicon octicon-mark-github" style="vertical-align: middle; height: 2em;">
-                <path fill-rule="evenodd"
-                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-            </svg>
-        </a>
     </div>
 
-    <h1>Welcome to Tailon.io</h1>
-
-    <p>
-        Tailon is a really simple queue service to handle millions of messages per second.
-    </p>
-
-    <p>
-        Tailon is free software, here is the source:
-        <a href="https://github.com/fulldump/tailon">
-            <svg aria-hidden="true" height="24" viewBox="0 0 16 16" version="1.1" width="24" data-view-component="true"
-                 class="octicon octicon-mark-github" style="vertical-align: middle; height: 14px;">
-                <path fill-rule="evenodd"
-                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-            </svg>
-            github.com/fulldump/tailon</a>
-    </p>
-
-    <p>
-        Find documentation examples here:
-        <a href="https://github.com/fulldump/tailon/tree/master/doc/examples">
-            <svg aria-hidden="true" height="24" viewBox="0 0 16 16" version="1.1" width="24" data-view-component="true"
-                 class="octicon octicon-mark-github" style="vertical-align: middle; height: 14px;">
-                <path fill-rule="evenodd"
-                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-            </svg>
-            github.com/fulldump/tailon/tree/master/doc/examples</a>
-    </p>
-
+    <script src="/lib/vue.global.prod.js"></script>
     <script>
-        function id(s) {
-            return document.getElementById(s);
-        }
+        const { createApp, ref, computed, onMounted, watch, onBeforeUnmount, reactive } = Vue;
 
-        fetch('/auth/me').then(resp => resp.json()).then(me => {
-            if (me.error) return;
-            id('login').style.display = 'none';
-            id('logout').style.display = 'block';
-            id('user_picture').setAttribute('src', me.picture);
-            id('user_nick').innerText = me.nick;
-        })
+        createApp({
+            setup() {
+                const queues = ref([]);
+                const filterTerm = ref('');
+                const selectedQueue = ref('');
+                const loadingQueues = ref(false);
+                const queueError = ref('');
+
+                const queueDetails = ref(null);
+                const detailsLoading = ref(false);
+                const detailsError = ref('');
+                const detailsUpdatedAt = ref(null);
+
+                const activeClients = ref({});
+                const clientsLoading = ref(false);
+                const clientsError = ref('');
+                const clientsUpdatedAt = ref(null);
+
+                const showCreateModal = ref(false);
+                const newQueueName = ref('');
+                const createLoading = ref(false);
+                const createError = ref('');
+
+                const me = ref(null);
+
+                const feedback = reactive({ visible: false, title: '', message: '', variant: 'info' });
+
+                const filteredQueues = computed(() => {
+                    if (!filterTerm.value) {
+                        return queues.value;
+                    }
+                    const term = filterTerm.value.toLowerCase();
+                    return queues.value.filter((name) => name.toLowerCase().includes(term));
+                });
+
+                const formattedLength = computed(() => formatMetric(queueDetails.value?.len));
+                const formattedReads = computed(() => formatMetric(queueDetails.value?.reads));
+                const formattedWrites = computed(() => formatMetric(queueDetails.value?.writes));
+                const lastUpdatedLabel = computed(() => detailsUpdatedAt.value ? formatDateTime(detailsUpdatedAt.value) : '—');
+
+                const clientsForSelected = computed(() => {
+                    const queueName = selectedQueue.value;
+                    if (!queueName) {
+                        return [];
+                    }
+                    const source = activeClients.value || {};
+                    return Object.values(source)
+                        .map(normalizeClient)
+                        .filter((client) => client.queue === queueName)
+                        .sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime());
+                });
+
+                function formatMetric(value) {
+                    if (typeof value === 'number' && Number.isFinite(value)) {
+                        return formatNumber(value);
+                    }
+                    return '—';
+                }
+
+                function formatNumber(value) {
+                    try {
+                        return new Intl.NumberFormat('es-ES').format(value);
+                    } catch (err) {
+                        return String(value ?? '—');
+                    }
+                }
+
+                function formatDateTime(value) {
+                    if (!value) {
+                        return '—';
+                    }
+                    const date = value instanceof Date ? value : new Date(value);
+                    if (Number.isNaN(date.getTime())) {
+                        return String(value);
+                    }
+                    return new Intl.DateTimeFormat('es-ES', {
+                        dateStyle: 'short',
+                        timeStyle: 'medium',
+                    }).format(date);
+                }
+
+                function normalizeClient(raw) {
+                    const ip = raw?.IP || raw?.ip || '—';
+                    const reads = raw?.reads ?? raw?.Reads ?? 0;
+                    const writes = raw?.writes ?? raw?.Writes ?? 0;
+                    return {
+                        id: raw?.id || raw?.Id || 'desconocido',
+                        queue: raw?.queue || raw?.Queue || '',
+                        start: raw?.start || raw?.Start || null,
+                        ip,
+                        reads,
+                        writes,
+                    };
+                }
+
+                async function readErrorMessage(resp, fallbackMessage) {
+                    let message = fallbackMessage;
+                    try {
+                        const text = await resp.text();
+                        if (text) {
+                            try {
+                                const data = JSON.parse(text);
+                                message = data?.error?.description || data?.error?.message || data?.message || text;
+                            } catch (err) {
+                                message = text;
+                            }
+                        }
+                    } catch (err) {
+                        // ignore and keep fallback
+                    }
+                    return message || fallbackMessage;
+                }
+
+                async function fetchQueues() {
+                    loadingQueues.value = true;
+                    queueError.value = '';
+                    try {
+                        const response = await fetch('/v1/queues');
+                        if (!response.ok) {
+                            throw new Error(await readErrorMessage(response, 'No se pudieron cargar las colas.'));
+                        }
+                        const data = await response.json();
+                        data.sort((a, b) => a.localeCompare(b, 'es'));
+                        queues.value = data;
+                        if (!data.length) {
+                            selectedQueue.value = '';
+                        } else if (!selectedQueue.value || !data.includes(selectedQueue.value)) {
+                            selectedQueue.value = data[0];
+                        }
+                    } catch (error) {
+                        queueError.value = error.message || 'No se pudieron cargar las colas.';
+                    } finally {
+                        loadingQueues.value = false;
+                    }
+                }
+
+                async function fetchQueueDetails(name = selectedQueue.value) {
+                    if (!name) {
+                        return;
+                    }
+                    detailsLoading.value = true;
+                    detailsError.value = '';
+                    try {
+                        const response = await fetch(`/v1/queues/${encodeURIComponent(name)}`);
+                        if (!response.ok) {
+                            throw new Error(await readErrorMessage(response, 'No se pudieron obtener los detalles de la cola.'));
+                        }
+                        queueDetails.value = await response.json();
+                        detailsUpdatedAt.value = new Date();
+                    } catch (error) {
+                        queueDetails.value = null;
+                        detailsError.value = error.message || 'No se pudieron obtener los detalles de la cola.';
+                    } finally {
+                        detailsLoading.value = false;
+                    }
+                }
+
+                async function fetchClients() {
+                    clientsLoading.value = true;
+                    clientsError.value = '';
+                    try {
+                        const response = await fetch('/v1/clients');
+                        if (!response.ok) {
+                            throw new Error(await readErrorMessage(response, 'No se pudieron obtener los clientes activos.'));
+                        }
+                        activeClients.value = await response.json();
+                        clientsUpdatedAt.value = new Date();
+                    } catch (error) {
+                        activeClients.value = {};
+                        clientsError.value = error.message || 'No se pudieron obtener los clientes activos.';
+                    } finally {
+                        clientsLoading.value = false;
+                    }
+                }
+
+                async function fetchMe() {
+                    try {
+                        const response = await fetch('/auth/me');
+                        if (!response.ok) {
+                            return;
+                        }
+                        const data = await response.json();
+                        if (!data.error) {
+                            me.value = data;
+                        }
+                    } catch (error) {
+                        // ignore auth errors
+                    }
+                }
+
+                function selectQueue(name) {
+                    if (selectedQueue.value === name) {
+                        return;
+                    }
+                    selectedQueue.value = name;
+                }
+
+                function openCreateModal() {
+                    createError.value = '';
+                    newQueueName.value = '';
+                    showCreateModal.value = true;
+                }
+
+                function closeCreateModal() {
+                    showCreateModal.value = false;
+                }
+
+                async function createQueue() {
+                    const name = (newQueueName.value || '').trim();
+                    if (!name) {
+                        createError.value = 'El nombre es obligatorio.';
+                        return;
+                    }
+                    if (!/^[a-zA-Z0-9-]{3,64}$/.test(name)) {
+                        createError.value = 'Usa solo letras, números y guiones (mínimo 3 caracteres).';
+                        return;
+                    }
+
+                    createLoading.value = true;
+                    createError.value = '';
+                    try {
+                        const response = await fetch('/v1/queues', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ name }),
+                        });
+                        if (!response.ok) {
+                            throw new Error(await readErrorMessage(response, 'No se pudo crear la cola.'));
+                        }
+                        showCreateModal.value = false;
+                        newQueueName.value = '';
+                        openFeedback('Cola creada', `La cola «${name}» se creó correctamente.`, 'success');
+                        await fetchQueues();
+                        selectedQueue.value = name;
+                    } catch (error) {
+                        createError.value = error.message || 'No se pudo crear la cola.';
+                    } finally {
+                        createLoading.value = false;
+                    }
+                }
+
+                function openFeedback(title, message, variant = 'info') {
+                    feedback.title = title;
+                    feedback.message = message;
+                    feedback.variant = variant;
+                    feedback.visible = true;
+                }
+
+                function closeFeedback() {
+                    feedback.visible = false;
+                }
+
+                let queueTimer = null;
+                let detailTimer = null;
+                let clientsTimer = null;
+
+                onMounted(() => {
+                    fetchMe();
+                    fetchQueues();
+                    queueTimer = setInterval(fetchQueues, 20000);
+                });
+
+                watch(selectedQueue, (queueName) => {
+                    if (detailTimer) {
+                        clearInterval(detailTimer);
+                        detailTimer = null;
+                    }
+                    if (clientsTimer) {
+                        clearInterval(clientsTimer);
+                        clientsTimer = null;
+                    }
+                    if (!queueName) {
+                        queueDetails.value = null;
+                        activeClients.value = {};
+                        return;
+                    }
+                    fetchQueueDetails(queueName);
+                    fetchClients();
+                    detailTimer = setInterval(() => fetchQueueDetails(queueName), 8000);
+                    clientsTimer = setInterval(fetchClients, 12000);
+                });
+
+                onBeforeUnmount(() => {
+                    if (queueTimer) {
+                        clearInterval(queueTimer);
+                    }
+                    if (detailTimer) {
+                        clearInterval(detailTimer);
+                    }
+                    if (clientsTimer) {
+                        clearInterval(clientsTimer);
+                    }
+                });
+
+                return {
+                    queues,
+                    filterTerm,
+                    selectedQueue,
+                    loadingQueues,
+                    queueError,
+                    filteredQueues,
+                    queueDetails,
+                    detailsLoading,
+                    detailsError,
+                    formattedLength,
+                    formattedReads,
+                    formattedWrites,
+                    lastUpdatedLabel,
+                    clientsForSelected,
+                    clientsLoading,
+                    clientsError,
+                    clientsUpdatedAt,
+                    showCreateModal,
+                    newQueueName,
+                    createLoading,
+                    createError,
+                    me,
+                    feedback,
+                    fetchQueues,
+                    fetchQueueDetails,
+                    fetchClients,
+                    selectQueue,
+                    openCreateModal,
+                    closeCreateModal,
+                    createQueue,
+                    openFeedback,
+                    closeFeedback,
+                    formatNumber,
+                    formatDateTime,
+                };
+            },
+        }).mount('#app');
     </script>
-
 </body>
 </html>
-
