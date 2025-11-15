@@ -57,15 +57,21 @@ func Build(version, staticsDir string, qs queue.Service) *box.B {
 
 	v1.Resource("/clients").
 		WithActions(
-			box.Get(func(w http.ResponseWriter) {
+			box.Get(func(w http.ResponseWriter) map[string]*Client {
+
+				response := map[string]*Client{}
 
 				activeClientsMutex.RLock()
+				for k, v := range activeClients {
+					response[k] = v
+				}
+
 				defer func() {
 					activeClientsMutex.RUnlock()
 				}()
-				json.NewEncoder(w).Encode(activeClients)
 
-			}),
+				return response
+			}).WithName("ListClients"),
 		)
 
 	v1.Resource("/queues").
@@ -82,7 +88,7 @@ func Build(version, staticsDir string, qs queue.Service) *box.B {
 			box.Get(RetrieveQueue),
 			box.Delete(func() string {
 				return "delete queue"
-			}),
+			}).WithName("DeleteQueue"),
 			box.Action(Read),
 			box.ActionPost(Write),
 		)
@@ -90,13 +96,15 @@ func Build(version, staticsDir string, qs queue.Service) *box.B {
 	b.Resource("/release").
 		WithActions(box.Get(func() string {
 			return version
-		}))
+		}).WithName("GetRelease"),
+		)
 
 	b.Resource("/me").
 		WithInterceptors(glueauth.Require).
 		WithActions(box.Get(func(ctx context.Context) *glueauth.GlueAuthentication {
 			return glueauth.GetAuth(ctx)
-		}))
+		}).WithName("GetMe"),
+		)
 
 	// Openapi automatic spec
 	b.Handle("GET", "/openapi.json", func(w http.ResponseWriter) {
@@ -114,7 +122,7 @@ func Build(version, staticsDir string, qs queue.Service) *box.B {
 	return b
 }
 
-func ListQueues(ctx context.Context) (interface{}, error) {
+func ListQueues(ctx context.Context) ([]string, error) {
 	s := GetQueueService(ctx)
 	return s.ListQueues()
 }
@@ -123,21 +131,21 @@ type CreateQueueInput struct {
 	Name string `json:"name"`
 }
 
-func CreateQueue(ctx context.Context, input CreateQueueInput, w http.ResponseWriter) error {
+func CreateQueue(ctx context.Context, input CreateQueueInput, w http.ResponseWriter) (queue.Queue, error) {
 
 	s := GetQueueService(ctx)
 
-	_, err := s.CreateQueue(input.Name)
+	response, err := s.CreateQueue(input.Name)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	w.WriteHeader(http.StatusCreated)
 
-	return nil
+	return response, nil
 }
 
-func RetrieveQueue(ctx context.Context, w http.ResponseWriter) (interface{}, error) {
+func RetrieveQueue(ctx context.Context, w http.ResponseWriter) (map[string]any, error) {
 
 	queueName := box.GetUrlParameter(ctx, "queue_id")
 
@@ -253,7 +261,7 @@ func Read(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 
 	// j := json.NewEncoder(w)
 
-	// f, isFlusher := w.(http.Flusher)
+	f, isFlusher := w.(http.Flusher)
 
 	for limit > 0 {
 		limit--
@@ -278,9 +286,9 @@ func Read(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 		// 	return err // some error encoding response
 		// }
 
-		// if isFlusher {
-		// 	// f.Flush()
-		// }
+		if isFlusher {
+			f.Flush()
+		}
 	}
 
 	return nil

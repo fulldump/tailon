@@ -1,72 +1,479 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="es">
 <head>
-    <meta charset="utf-8">
-    <title>Tailon - αlpha</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Tailon Console</title>
+	<!-- Tailwind (CDN build) -->
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script>
+		// minimal dark palette tweaks
+		tailwind.config = {
+			theme: {
+				extend: {
+					colors: {
+						brand: {
+							50: '#eef2ff', 100: '#e0e7ff', 600: '#4f46e5', 700: '#4338ca',
+						},
+					},
+				},
+			},
+			darkMode: 'media',
+		}
+	</script>
+	<!-- Vue 3 + Router (ESM via CDN) -->
+	<!-- Import Map to resolve bare specifiers -->
+	<script type="importmap">
+		{
+			"imports": {
+				"vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
+				"vue-router": "https://unpkg.com/vue-router@4/dist/vue-router.esm-browser.js",
+				"@vue/devtools-api": "https://unpkg.com/@vue/devtools-api@6.5.0/lib/esm/index.js"
+			}
+		}
+	</script>
+	<script type="module">
+		import { createApp, reactive, ref, computed, onMounted, watch } from 'vue'
+		import { createRouter, createWebHashHistory, useRouter, useRoute } from 'vue-router'
+
+		// --- Simple global store ---
+		const store = reactive({
+			baseUrl: 'http://localhost:8080',
+			extraHeaderName: localStorage.getItem('tailon.headerName') || '', // e.g., 'X-Auth'
+			extraHeaderValue: localStorage.getItem('tailon.headerValue') || '',
+			queues: [],
+			loadingQueues: false,
+			selectedQueue: null,
+			// Live stream state
+			live: {
+				controller: null,
+				running: false,
+				lines: [], // parsed JSON lines
+				raw: '',   // raw text buffer (debug)
+				error: '',
+			},
+		})
+
+		// --- HTTP helpers ---
+		function headersJSON() {
+			const h = { 'Accept': 'application/json', 'Content-Type': 'application/json' }
+			if (store.extraHeaderName && store.extraHeaderValue) h[store.extraHeaderName] = store.extraHeaderValue
+			return h
+		}
+		function headersAny(accept = '*/*') {
+			const h = { 'Accept': accept }
+			if (store.extraHeaderName && store.extraHeaderValue) h[store.extraHeaderName] = store.extraHeaderValue
+			return h
+		}
+		async function httpGet(path, accept = 'application/json') {
+			const res = await fetch(`${store.baseUrl}${path}`, { headers: headersAny(accept) })
+			if (!res.ok) throw new Error(`GET ${path} → ${res.status}`)
+			if (accept === 'application/json') return res.json()
+			return res.text()
+		}
+		async function httpPost(path, body, contentType = 'application/json') {
+			const headers = headersAny('application/json')
+			headers['Content-Type'] = contentType
+			const res = await fetch(`${store.baseUrl}${path}`, { method: 'POST', headers, body })
+			if (!res.ok) throw new Error(`POST ${path} → ${res.status}`)
+			const ct = res.headers.get('content-type') || ''
+			return ct.includes('application/json') ? res.json() : res.text()
+		}
+		async function httpDelete(path) {
+			const res = await fetch(`${store.baseUrl}${path}`, { method: 'DELETE', headers: headersAny('application/json') })
+			if (!res.ok) throw new Error(`DELETE ${path} → ${res.status}`)
+			const ct = res.headers.get('content-type') || ''
+			return ct.includes('application/json') ? res.json() : res.text()
+		}
+
+		// --- API wrappers (per OpenAPI) ---
+		async function listQueues() {
+			store.loadingQueues = true
+			try {
+				const data = await httpGet('/v1/queues') // array<string>
+				store.queues = Array.isArray(data) ? data : []
+			} finally {
+				store.loadingQueues = false
+			}
+		}
+		async function createQueue(name) {
+			await httpPost('/v1/queues', JSON.stringify({ name }))
+			await listQueues()
+		}
+		async function deleteQueue(id) {
+			await httpDelete(`/v1/queues/${encodeURIComponent(id)}`)
+			if (store.selectedQueue === id) store.selectedQueue = null
+			await listQueues()
+		}
+
+		// --- Streaming read (JSONL) ---
+		async function readJSONLStream(queueId, { onLine, maxLines = Infinity, timeoutMs = 30000 } = {}) {
+			// Abort any previous live
+			if (store.live.controller) {
+				try { store.live.controller.abort() } catch {}
+			}
+			store.live.controller = new AbortController()
+			const { signal } = store.live.controller
+			const url = `${store.baseUrl}/v1/queues/${encodeURIComponent(queueId)}:read`
+			const res = await fetch(url, { headers: headersAny('*/*'), signal })
+			if (!res.ok) throw new Error(`READ ${url} → ${res.status}`)
+
+			const reader = res.body.getReader()
+			const decoder = new TextDecoder()
+			let buffer = ''
+			let count = 0
+			let timer
+			const resetTimer = () => {
+				if (timeoutMs !== Infinity) {
+					if (timer) clearTimeout(timer)
+					timer = setTimeout(() => {
+						try { store.live.controller.abort() } catch {}
+					}, timeoutMs)
+				}
+			}
+			resetTimer()
+
+			try {
+				while (true) {
+					const { value, done } = await reader.read()
+					if (done) break
+					resetTimer()
+					buffer += decoder.decode(value, { stream: true })
+					let idx
+					while ((idx = buffer.indexOf('\n')) >= 0) {
+						const line = buffer.slice(0, idx)
+						buffer = buffer.slice(idx + 1)
+						if (line.trim().length === 0) continue
+						count++
+						try {
+							const obj = JSON.parse(line)
+							onLine && onLine(obj, line)
+						} catch (e) {
+							// Non-JSON line; pass raw
+							onLine && onLine({ _raw: line }, line)
+						}
+						if (count >= maxLines) {
+							try { store.live.controller.abort() } catch {}
+							return
+						}
+					}
+				}
+			} finally {
+				if (timer) clearTimeout(timer)
+			}
+		}
+
+		// --- Write (single JSON message) ---
+		async function writeJSONLine(queueId, jsonText, contentType = 'application/json') {
+			// Append a newline to respect JSONL contract
+			const body = contentType === 'application/json' ? (jsonText.trim() + '\n') : jsonText
+			return httpPost(`/v1/queues/${encodeURIComponent(queueId)}:write`, body, contentType)
+		}
+
+		// --- Components ---
+		const SettingsBar = {
+			name: 'SettingsBar',
+			setup() {
+				const url = ref(store.baseUrl)
+				const headerName = ref(store.extraHeaderName)
+				const headerValue = ref(store.extraHeaderValue)
+				function save() {
+					store.baseUrl = url.value.trim().replace(/\/$/, '')
+					store.extraHeaderName = headerName.value.trim()
+					store.extraHeaderValue = headerValue.value.trim()
+					localStorage.setItem('tailon.baseUrl', store.baseUrl)
+					localStorage.setItem('tailon.headerName', store.extraHeaderName)
+					localStorage.setItem('tailon.headerValue', store.extraHeaderValue)
+				}
+				function testAuth() {
+					httpGet('/me').then(() => alert('Auth OK /me')).catch(e => alert('Auth fallo: ' + e.message))
+				}
+				return { url, headerName, headerValue, save, testAuth }
+			},
+			template: `
+          <div class="p-3 border-b border-gray-200 dark:border-gray-800">
+            <div class="flex flex-col gap-2">
+              <div class="flex gap-2 items-center">
+                <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Base URL</span>
+                <input v-model="url" class="w-full px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-900/60 focus:outline-none" placeholder="https://tailon.hola.cloud" />
+                <button @click="save" class="px-3 py-1 rounded bg-brand-600 hover:bg-brand-700 text-white text-sm">Guardar</button>
+              </div>
+              <div class="flex gap-2 items-center">
+                <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Header</span>
+                <input v-model="headerName" class="w-40 px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-900/60" placeholder="X-Auth (opcional)" />
+                <input v-model="headerValue" class="w-full px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-900/60" placeholder="Valor del header" />
+                <button @click="save" class="px-3 py-1 rounded bg-gray-900/80 hover:bg-black text-white text-sm">Aplicar</button>
+                <button @click="testAuth" class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-sm">Probar /me</button>
+              </div>
+            </div>
+          </div>
+        `
+		}
+
+		const Sidebar = {
+			name: 'Sidebar',
+			components: { SettingsBar },
+			setup() {
+				const newQueue = ref('')
+				const creating = ref(false)
+				const router = useRouter()
+
+				function select(q) {
+					store.selectedQueue = q
+					router.push({ name: 'queue', params: { id: q } })
+				}
+
+				async function create() {
+					if (!newQueue.value.trim()) return
+					creating.value = true
+					try {
+						await createQueue(newQueue.value.trim())
+						newQueue.value = ''
+					} catch (e) {
+						alert('No se pudo crear la cola: ' + e.message)
+					} finally {
+						creating.value = false
+					}
+				}
+
+				onMounted(listQueues)
+
+				return { store, newQueue, creating, listQueues, create, select }
+			},
+			template: `
+          <aside class="flex flex-col h-full">
+            <SettingsBar />
+            <div class="p-3 border-b border-gray-200 dark:border-gray-800">
+              <div class="flex gap-2">
+                <input v-model="newQueue" placeholder="Nombre de la cola" class="flex-1 px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-900/60" />
+                <button @click="create" :disabled="creating" class="px-3 py-1 rounded bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white">Nueva</button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between px-3 py-2 text-xs text-gray-500">
+              <span>Colas</span>
+              <button @click="listQueues" class="px-2 py-1 rounded bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700">Refrescar</button>
+            </div>
+            <nav class="flex-1 overflow-auto">
+              <ul>
+                <li v-if="store.loadingQueues" class="px-3 py-2 text-sm text-gray-500">Cargando…</li>
+                <li v-else-if="!store.queues.length" class="px-3 py-2 text-sm text-gray-500">No hay colas aún.</li>
+                <li v-for="q in store.queues" :key="q">
+                  <div class="flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer" :class="{ 'bg-gray-100 dark:bg-gray-800': store.selectedQueue === q }" @click="select(q)">
+                    <span class="truncate">{{ q }}</span>
+                    <button title="Eliminar" @click.stop="deleteQueue(q).catch(e=>alert('Error al eliminar: '+e.message))" class="text-xs px-2 py-0.5 rounded bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-300">×</button>
+                  </div>
+                </li>
+              </ul>
+            </nav>
+            <footer class="p-3 text-[10px] text-gray-500 border-t border-gray-200 dark:border-gray-800">
+              Tailon Console — Vue 3 + Tailwind
+            </footer>
+          </aside>
+        `
+		}
+
+		const Home = {
+			name: 'Home',
+			template: `
+          <div class="p-6">
+            <h1 class="text-xl font-semibold mb-2">Bienvenido</h1>
+            <p class="text-gray-600 dark:text-gray-300">Selecciona una cola en el panel lateral o crea una nueva para empezar.</p>
+          </div>
+        `
+		}
+
+		const QueueView = {
+			name: 'QueueView',
+			setup() {
+				const route = useRoute()
+				const queueId = computed(() => route.params.id)
+				const n = ref(10)
+				const timeoutMs = ref(30000)
+				const sending = ref(false)
+				const contentType = ref('application/json')
+				const newMessage = ref('{"hello":"world"}')
+
+				function resetBuffer() {
+					store.live.lines = []
+					store.live.raw = ''
+					store.live.error = ''
+				}
+
+				async function readN() {
+					resetBuffer()
+					try {
+						await readJSONLStream(queueId.value, {
+							maxLines: Number(n.value) || 1,
+							timeoutMs: Number(timeoutMs.value) || 30000,
+							onLine(obj, raw) {
+								store.live.lines.unshift(obj) // newest first
+								store.live.raw += raw + '\n'
+							}
+						})
+					} catch (e) {
+						store.live.error = e.message
+					}
+				}
+
+				async function toggleLive() {
+					if (store.live.running) {
+						try { store.live.controller?.abort() } catch {}
+						store.live.running = false
+						return
+					}
+					resetBuffer()
+					store.live.running = true
+					try {
+						await readJSONLStream(queueId.value, {
+							maxLines: Infinity,
+							timeoutMs: Infinity,
+							onLine(obj, raw) {
+								store.live.lines.unshift(obj)
+								store.live.raw += raw + '\n'
+							}
+						})
+					} catch (e) {
+						store.live.error = e.message
+					} finally {
+						store.live.running = false
+					}
+				}
+
+				async function sendMessage() {
+					sending.value = true
+					try {
+						await writeJSONLine(queueId.value, newMessage.value, contentType.value)
+					} catch (e) {
+						alert('Error al enviar: ' + e.message)
+					} finally {
+						sending.value = false
+					}
+				}
+
+				watch(queueId, (v) => {
+					store.selectedQueue = v
+					resetBuffer()
+				}, { immediate: true })
+
+				const curlCmd = computed(() => {
+					const url = `${store.baseUrl}/v1/queues/${encodeURIComponent(queueId.value)}:read`
+					const header = (store.extraHeaderName && store.extraHeaderValue) ? ` -H "${store.extraHeaderName}: ${store.extraHeaderValue}"` : ''
+					return `curl -N -s${header} "${url}"`
+				})
+
+				return { store, queueId, n, timeoutMs, newMessage, contentType, readN, toggleLive, sendMessage, curlCmd, resetBuffer }
+			},
+			template: `
+          <div class="h-full flex flex-col">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+              <div>
+                <h2 class="text-lg font-semibold">Cola: <span class="font-mono">{{ queueId }}</span></h2>
+                <p class="text-sm text-gray-500">Lectura en streaming (JSON Lines) y envío de mensajes.</p>
+              </div>
+              <div class="flex gap-2">
+                <button @click="resetBuffer" class="px-3 py-1 text-sm rounded bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700">Limpiar</button>
+                <button @click="toggleLive" :class="store.live.running ? 'bg-red-600 hover:bg-red-700' : 'bg-brand-600 hover:bg-brand-700'" class="px-3 py-1 text-sm rounded text-white">
+                  {{ store.live.running ? 'Parar LIVE' : 'LIVE (seguir)' }}
+                </button>
+              </div>
+            </div>
+
+            <div class="p-4 grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1 overflow-hidden">
+              <!-- Controls -->
+              <section class="col-span-1 space-y-4">
+                <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white/70 dark:bg-gray-900/60 shadow-sm">
+                  <h3 class="font-medium mb-2">Obtener mensajes</h3>
+                  <div class="flex items-center gap-2 mb-2">
+                    <label class="text-sm text-gray-600 dark:text-gray-300">Siguientes N</label>
+                    <input v-model.number="n" type="number" min="1" class="w-24 px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-900/60" />
+                    <label class="text-sm text-gray-600 dark:text-gray-300 ml-2">Timeout (ms)</label>
+                    <input v-model.number="timeoutMs" type="number" min="0" class="w-28 px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-900/60" />
+                    <button @click="readN" class="ml-auto px-3 py-1 rounded bg-gray-900/80 hover:bg-black text-white text-sm">Leer</button>
+                  </div>
+                  <p v-if="store.live.error" class="text-xs text-red-600">{{ store.live.error }}</p>
+                </div>
+
+                <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white/70 dark:bg-gray-900/60 shadow-sm">
+                  <h3 class="font-medium mb-2">Crear mensaje</h3>
+                  <div class="flex items-center gap-2 mb-2">
+                    <label class="text-sm text-gray-600 dark:text-gray-300">Content-Type</label>
+                    <select v-model="contentType" class="px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-900/60">
+                      <option>application/json</option>
+                      <option>text/plain</option>
+                    </select>
+                    <button @click="sendMessage" :disabled="sending" class="ml-auto px-3 py-1 rounded bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm">Enviar</button>
+                  </div>
+                  <textarea v-model="newMessage" rows="6" spellcheck="false" class="w-full font-mono text-sm px-2 py-2 rounded border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-900/60"></textarea>
+                  <p class="text-xs text-gray-500 mt-1">Se envía como una sola línea (JSONL). Si usas <em>application/json</em>, se añade un <code>\n</code> al final.</p>
+                </div>
+
+                <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white/70 dark:bg-gray-900/60 shadow-sm">
+                  <h3 class="font-medium mb-2">cURL (stream)</h3>
+                  <pre class="text-xs bg-black text-white p-3 rounded-lg overflow-auto"><code>{{ curlCmd }}</code></pre>
+                </div>
+              </section>
+
+              <!-- Messages -->
+              <section class="col-span-1 lg:col-span-2 flex flex-col min-h-0">
+                <div class="flex items-center justify-between mb-2">
+                  <h3 class="font-medium">Mensajes recibidos</h3>
+                  <span class="text-xs text-gray-500">{{ store.live.lines.length }} elementos</span>
+                </div>
+                <div class="flex-1 overflow-auto rounded-xl border border-gray-200 dark:border-gray-800 bg-white/70 dark:bg-gray-900/60">
+                  <ul class="divide-y divide-gray-200 dark:divide-gray-800">
+                    <li v-for="(m, i) in store.live.lines" :key="i" class="p-3">
+                      <pre class="text-xs font-mono whitespace-pre-wrap">{{ JSON.stringify(m, null, 2) }}</pre>
+                    </li>
+                    <li v-if="!store.live.lines.length" class="p-6 text-sm text-gray-500">Sin datos aún. Empieza una lectura o activa LIVE.</li>
+                  </ul>
+                </div>
+              </section>
+            </div>
+          </div>
+        `
+		}
+
+		// --- Router ---
+		const routes = [
+			{ path: '/', name: 'home', component: Home },
+			{ path: '/queue/:id', name: 'queue', component: QueueView, props: true },
+		]
+		const router = createRouter({ history: createWebHashHistory(), routes })
+
+		// --- Root App ---
+		const App = {
+			name: 'App',
+			components: { Sidebar },
+			setup() {
+				onMounted(() => {
+					// pick first queue automatically on load (optional)
+					listQueues().then(() => {
+						if (store.queues.length && router.currentRoute.value.name === 'home') {
+							const q = store.queues[0]
+							store.selectedQueue = q
+							router.replace({ name: 'queue', params: { id: q } })
+						}
+					})
+				})
+				return { store }
+			},
+			template: `
+          <div class="h-screen w-screen grid grid-cols-[320px_minmax(0,1fr)] bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+            <div class="border-r border-gray-200 dark:border-gray-800 bg-white/60 dark:bg-gray-900/60 backdrop-blur">
+              <div class="px-4 py-3 text-lg font-semibold tracking-tight border-b border-gray-200 dark:border-gray-800">Tailon Console</div>
+              <Sidebar />
+            </div>
+            <main class="min-h-0">
+              <router-view />
+            </main>
+          </div>
+        `
+		}
+
+		createApp(App).use(router).mount('#app')
+	</script>
 </head>
 <body>
-
-    <div style="float: right;">
-        <div id="login">
-            <a href="/auth/login">Login</a>
-        </div>
-        <div id="logout" style="display:none;">
-            <img id="user_picture" src="" style="border-radius: 50%; height: 32px; vertical-align: middle;">
-            <span id="user_nick" style="font-weight: bold;"></span>
-            <a href="/auth/logout">Logout</a>
-        </div>
-        <a href="https://github.com/fulldump/tailon" style="display: inline-block; margin: 8px;">
-            <svg aria-hidden="true" height="24" viewBox="0 0 16 16" version="1.1" width="24" data-view-component="true"
-                 class="octicon octicon-mark-github" style="vertical-align: middle; height: 2em;">
-                <path fill-rule="evenodd"
-                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-            </svg>
-        </a>
-    </div>
-
-    <h1>Welcome to Tailon.io</h1>
-
-    <p>
-        Tailon is a really simple queue service to handle millions of messages per second.
-    </p>
-
-    <p>
-        Tailon is free software, here is the source:
-        <a href="https://github.com/fulldump/tailon">
-            <svg aria-hidden="true" height="24" viewBox="0 0 16 16" version="1.1" width="24" data-view-component="true"
-                 class="octicon octicon-mark-github" style="vertical-align: middle; height: 14px;">
-                <path fill-rule="evenodd"
-                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-            </svg>
-            github.com/fulldump/tailon</a>
-    </p>
-
-    <p>
-        Find documentation examples here:
-        <a href="https://github.com/fulldump/tailon/tree/master/doc/examples">
-            <svg aria-hidden="true" height="24" viewBox="0 0 16 16" version="1.1" width="24" data-view-component="true"
-                 class="octicon octicon-mark-github" style="vertical-align: middle; height: 14px;">
-                <path fill-rule="evenodd"
-                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-            </svg>
-            github.com/fulldump/tailon/tree/master/doc/examples</a>
-    </p>
-
-    <script>
-        function id(s) {
-            return document.getElementById(s);
-        }
-
-        fetch('/auth/me').then(resp => resp.json()).then(me => {
-            if (me.error) return;
-            id('login').style.display = 'none';
-            id('logout').style.display = 'block';
-            id('user_picture').setAttribute('src', me.picture);
-            id('user_nick').innerText = me.nick;
-        })
-    </script>
-
+<div id="app"></div>
 </body>
 </html>
-
