@@ -1,26 +1,102 @@
 <!doctype html>
 <html lang="es">
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>Tailon Console</title>
-	<!-- Tailwind (CDN build) -->
-	<script src="https://cdn.tailwindcss.com"></script>
-	<script>
-		// minimal dark palette tweaks
-		tailwind.config = {
-			theme: {
-				extend: {
-					colors: {
-						brand: {
-							50: '#eef2ff', 100: '#e0e7ff', 600: '#4f46e5', 700: '#4338ca',
-						},
-					},
-				},
-			},
-			darkMode: 'media',
-		}
-	</script>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Tailon Console</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+        <link rel="stylesheet" href="lib/hc-design.css" />
+        <!-- Tailwind (CDN build) -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+                // minimal dark palette tweaks
+                tailwind.config = {
+                        theme: {
+                                extend: {
+                                        colors: {
+                                                brand: {
+                                                        50: '#f4f6ff',
+                                                        100: '#e6e9ff',
+                                                        200: '#c8d0ff',
+                                                        300: '#a9b6ff',
+                                                        400: '#899aff',
+                                                        500: '#5666f5',
+                                                        600: '#3a4be6',
+                                                        700: '#2736c2',
+                                                },
+                                                accent: '#ff7a59',
+                                                surface: '#ffffff',
+                                                neutral: {
+                                                        50: '#f8fafc',
+                                                        100: '#f1f5f9',
+                                                        600: '#475569',
+                                                        900: '#0f172a',
+                                                },
+                                        },
+                                },
+                        },
+                        darkMode: 'media',
+                }
+        </script>
+        <style>
+                body {
+                        background: radial-gradient(circle at 10% 20%, rgba(86, 102, 245, 0.12), transparent 35%),
+                                radial-gradient(circle at 80% 0%, rgba(255, 122, 89, 0.14), transparent 32%),
+                                var(--color-background);
+                        color: var(--color-text-strong);
+                }
+
+                .app-shell {
+                        backdrop-filter: blur(10px);
+                        -webkit-backdrop-filter: blur(10px);
+                        background-color: color-mix(in srgb, var(--color-surface) 85%, transparent);
+                        border: 1px solid var(--color-border-subtle);
+                        box-shadow: var(--shadow-lg);
+                        border-radius: 1.25rem;
+                        overflow: hidden;
+                }
+
+                .sidebar-panel {
+                        background: linear-gradient(180deg, rgba(86, 102, 245, 0.08), rgba(15, 23, 42, 0.02));
+                        border-right: 1px solid var(--color-border-subtle);
+                        backdrop-filter: blur(6px);
+                }
+
+                .pill {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 0.35rem;
+                        padding: 0.35rem 0.7rem;
+                        border-radius: 9999px;
+                        background: rgba(86, 102, 245, 0.12);
+                        color: var(--color-brand-700);
+                        font-weight: 600;
+                        font-size: 0.85rem;
+                }
+
+                .card-muted {
+                        border: 1px solid var(--color-border-subtle);
+                        background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+                        border-radius: var(--radius-lg);
+                        box-shadow: var(--shadow-sm);
+                }
+
+                .list-tile:hover {
+                        background-color: rgba(86, 102, 245, 0.08);
+                }
+
+                .code-block {
+                        background: #0b1220;
+                        color: #e2e8f0;
+                        border-radius: var(--radius-lg);
+                        border: 1px solid rgba(148, 163, 184, 0.24);
+                        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+                }
+
+                .mono {
+                        font-family: "JetBrains Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+                }
+        </style>
 	<!-- Vue 3 + Router (ESM via CDN) -->
 	<!-- Import Map to resolve bare specifiers -->
 	<script type="importmap">
@@ -190,25 +266,30 @@
 				}
 				return { url, headerName, headerValue, save, testAuth }
 			},
-			template: `
-          <div class="p-3 border-b border-gray-200 dark:border-gray-800">
-            <div class="flex flex-col gap-2">
-              <div class="flex gap-2 items-center">
-                <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Base URL</span>
-                <input v-model="url" class="w-full px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-900/60 focus:outline-none" placeholder="https://tailon.hola.cloud" />
-                <button @click="save" class="px-3 py-1 rounded bg-brand-600 hover:bg-brand-700 text-white text-sm">Guardar</button>
+                        template: `
+          <div class="hc-card card-muted">
+            <div class="flex items-center gap-3">
+              <div class="flex-1">
+                <div class="hc-form-label text-sm text-[color:var(--color-text-muted)]">Base URL</div>
+                <input v-model="url" class="hc-input" placeholder="https://tailon.hola.cloud" />
               </div>
-              <div class="flex gap-2 items-center">
-                <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Header</span>
-                <input v-model="headerName" class="w-40 px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-900/60" placeholder="X-Auth (opcional)" />
-                <input v-model="headerValue" class="w-full px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-900/60" placeholder="Valor del header" />
-                <button @click="save" class="px-3 py-1 rounded bg-gray-900/80 hover:bg-black text-white text-sm">Aplicar</button>
-                <button @click="testAuth" class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-sm">Probar /me</button>
+              <button type="button" @click="save" class="hc-button hc-btn-primary px-4 py-2">Guardar</button>
+            </div>
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-[0.9fr_1fr_auto_auto] md:items-end">
+              <div class="flex flex-col gap-1">
+                <label class="hc-form-label text-sm text-[color:var(--color-text-muted)]">Header</label>
+                <input v-model="headerName" class="hc-input" placeholder="X-Auth (opcional)" />
               </div>
+              <div class="flex flex-col gap-1">
+                <label class="hc-form-label text-sm text-[color:var(--color-text-muted)]">Valor</label>
+                <input v-model="headerValue" class="hc-input" placeholder="Valor del header" />
+              </div>
+              <button type="button" @click="save" class="hc-button hc-btn-secondary px-4 py-[10px]">Aplicar</button>
+              <button type="button" @click="testAuth" class="hc-button hc-btn-subtle px-4 py-[10px]">Probar /me</button>
             </div>
           </div>
         `
-		}
+                }
 
 		const Sidebar = {
 			name: 'Sidebar',
@@ -240,47 +321,75 @@
 
 				return { store, newQueue, creating, listQueues, create, select }
 			},
-			template: `
-          <aside class="flex flex-col h-full">
+                        template: `
+          <aside class="sidebar-panel flex flex-col h-full gap-4 p-5">
+            <div class="flex items-center gap-3">
+              <img src="img/logo-short.png" alt="hola.cloud" class="h-9 w-9 rounded-lg shadow-sm border border-[color:var(--color-border-subtle)] bg-white/80" />
+              <div class="leading-tight">
+                <p class="text-xs text-[color:var(--color-text-muted)]">Hola Cloud Admin</p>
+                <p class="hc-heading-3 text-lg">Tailon Console</p>
+              </div>
+              <span class="pill ml-auto">Beta</span>
+            </div>
+
             <SettingsBar />
-            <div class="p-3 border-b border-gray-200 dark:border-gray-800">
-              <div class="flex gap-2">
-                <input v-model="newQueue" placeholder="Nombre de la cola" class="flex-1 px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-900/60" />
-                <button @click="create" :disabled="creating" class="px-3 py-1 rounded bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white">Nueva</button>
+
+            <div class="hc-card card-muted">
+              <div class="flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                  <p class="hc-form-label text-sm mb-0">Nueva cola</p>
+                  <button type="button" @click="listQueues" class="hc-button hc-btn-subtle px-3 py-2">Refrescar</button>
+                </div>
+                <div class="flex gap-2">
+                  <input v-model="newQueue" placeholder="Nombre de la cola" class="hc-input" />
+                  <button @click="create" :disabled="creating" class="hc-button hc-btn-primary px-4 py-2">Nueva</button>
+                </div>
+                <p class="hc-helper-text text-sm">Aplica para entornos de pruebas y staging.</p>
               </div>
             </div>
-            <div class="flex items-center justify-between px-3 py-2 text-xs text-gray-500">
-              <span>Colas</span>
-              <button @click="listQueues" class="px-2 py-1 rounded bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700">Refrescar</button>
-            </div>
-            <nav class="flex-1 overflow-auto">
-              <ul>
-                <li v-if="store.loadingQueues" class="px-3 py-2 text-sm text-gray-500">Cargando…</li>
-                <li v-else-if="!store.queues.length" class="px-3 py-2 text-sm text-gray-500">No hay colas aún.</li>
+
+            <nav class="flex-1 overflow-auto card-muted p-3">
+              <div class="flex items-center justify-between pb-2">
+                <span class="text-xs uppercase tracking-wide text-[color:var(--color-text-muted)]">Colas</span>
+                <span class="hc-badge">{{ store.queues.length }} activas</span>
+              </div>
+              <ul class="divide-y divide-[color:var(--color-border-subtle)]">
+                <li v-if="store.loadingQueues" class="py-2 text-sm text-[color:var(--color-text-muted)]">Cargando…</li>
+                <li v-else-if="!store.queues.length" class="py-2 text-sm text-[color:var(--color-text-muted)]">No hay colas aún.</li>
                 <li v-for="q in store.queues" :key="q">
-                  <div class="flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer" :class="{ 'bg-gray-100 dark:bg-gray-800': store.selectedQueue === q }" @click="select(q)">
-                    <span class="truncate">{{ q }}</span>
-                    <button title="Eliminar" @click.stop="deleteQueue(q).catch(e=>alert('Error al eliminar: '+e.message))" class="text-xs px-2 py-0.5 rounded bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-300">×</button>
+                  <div class="list-tile flex items-center gap-2 justify-between px-2 py-2 rounded-md transition" :class="{ 'bg-[color:var(--color-surface-muted)]': store.selectedQueue === q }" @click="select(q)">
+                    <div class="flex items-center gap-2 min-w-0">
+                      <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+                      <span class="truncate font-medium">{{ q }}</span>
+                    </div>
+                    <button title="Eliminar" @click.stop="deleteQueue(q).catch(e=>alert('Error al eliminar: '+e.message))" class="hc-button hc-btn-danger px-2 py-1 text-xs">×</button>
                   </div>
                 </li>
               </ul>
             </nav>
-            <footer class="p-3 text-[10px] text-gray-500 border-t border-gray-200 dark:border-gray-800">
-              Tailon Console — Vue 3 + Tailwind
+
+            <footer class="text-[11px] text-[color:var(--color-text-muted)]">
+              <div class="flex items-center gap-2">
+                <span class="inline-flex h-2 w-2 rounded-full bg-brand-500 animate-pulse"></span>
+                <span>Listo para conectar con tus colas gestionadas.</span>
+              </div>
             </footer>
           </aside>
         `
-		}
+                }
 
 		const Home = {
 			name: 'Home',
-			template: `
-          <div class="p-6">
-            <h1 class="text-xl font-semibold mb-2">Bienvenido</h1>
-            <p class="text-gray-600 dark:text-gray-300">Selecciona una cola en el panel lateral o crea una nueva para empezar.</p>
+                        template: `
+          <div class="p-8 h-full bg-[color:var(--color-surface)] flex flex-col items-center justify-center text-center">
+            <div class="hc-card card-muted max-w-xl">
+              <div class="hc-badge mb-3">hola.cloud</div>
+              <h1 class="hc-heading-2 mb-2">Panel de administración</h1>
+              <p class="hc-body text-[color:var(--color-text-muted)]">Selecciona una cola en el panel lateral o crea una nueva para empezar a emitir y consumir mensajes.</p>
+            </div>
           </div>
         `
-		}
+                }
 
 		const QueueView = {
 			name: 'QueueView',
@@ -364,68 +473,87 @@
 				return { store, queueId, n, timeoutMs, newMessage, contentType, readN, toggleLive, sendMessage, curlCmd, resetBuffer }
 			},
 			template: `
-          <div class="h-full flex flex-col">
-            <div class="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-              <div>
-                <h2 class="text-lg font-semibold">Cola: <span class="font-mono">{{ queueId }}</span></h2>
-                <p class="text-sm text-gray-500">Lectura en streaming (JSON Lines) y envío de mensajes.</p>
-              </div>
-              <div class="flex gap-2">
-                <button @click="resetBuffer" class="px-3 py-1 text-sm rounded bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700">Limpiar</button>
-                <button @click="toggleLive" :class="store.live.running ? 'bg-red-600 hover:bg-red-700' : 'bg-brand-600 hover:bg-brand-700'" class="px-3 py-1 text-sm rounded text-white">
-                  {{ store.live.running ? 'Parar LIVE' : 'LIVE (seguir)' }}
-                </button>
+          <div class="h-full flex flex-col bg-[color:var(--color-background)]">
+            <div class="p-6 border-b border-[color:var(--color-border-subtle)] bg-[color:var(--color-surface)]">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <p class="text-xs uppercase tracking-wide text-[color:var(--color-text-muted)]">Cola activa</p>
+                  <h2 class="hc-heading-3 flex items-center gap-2">{{ queueId }} <span class="hc-tag hc-tag--accent mono text-xs">JSONL</span></h2>
+                  <p class="hc-helper-text">Lectura en streaming (JSON Lines) y envío de mensajes.</p>
+                </div>
+                <div class="flex gap-2">
+                  <button @click="resetBuffer" class="hc-button hc-btn-secondary px-4 py-2">Limpiar</button>
+                  <button @click="toggleLive" :class="['hc-button px-4 py-2 text-white', store.live.running ? 'hc-btn-danger' : 'hc-btn-primary']">
+                    {{ store.live.running ? 'Parar LIVE' : 'LIVE (seguir)' }}
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div class="p-4 grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1 overflow-hidden">
+            <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-5 flex-1 overflow-hidden">
               <!-- Controls -->
-              <section class="col-span-1 space-y-4">
-                <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white/70 dark:bg-gray-900/60 shadow-sm">
-                  <h3 class="font-medium mb-2">Obtener mensajes</h3>
-                  <div class="flex items-center gap-2 mb-2">
-                    <label class="text-sm text-gray-600 dark:text-gray-300">Siguientes N</label>
-                    <input v-model.number="n" type="number" min="1" class="w-24 px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-900/60" />
-                    <label class="text-sm text-gray-600 dark:text-gray-300 ml-2">Timeout (ms)</label>
-                    <input v-model.number="timeoutMs" type="number" min="0" class="w-28 px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-900/60" />
-                    <button @click="readN" class="ml-auto px-3 py-1 rounded bg-gray-900/80 hover:bg-black text-white text-sm">Leer</button>
+              <section class="col-span-1 space-y-4 overflow-auto pb-4">
+                <div class="hc-card card-muted">
+                  <div class="flex items-center justify-between mb-3">
+                    <div>
+                      <p class="hc-form-label mb-1">Obtener mensajes</p>
+                      <p class="hc-helper-text">Controla lotes y timeout.</p>
+                    </div>
+                    <span class="hc-badge">Lectura</span>
                   </div>
-                  <p v-if="store.live.error" class="text-xs text-red-600">{{ store.live.error }}</p>
+                  <div class="flex flex-wrap items-end gap-3">
+                    <div class="flex-1 min-w-[120px]">
+                      <label class="hc-form-label text-sm">Siguientes N</label>
+                      <input v-model.number="n" type="number" min="1" class="hc-input" />
+                    </div>
+                    <div class="flex-1 min-w-[140px]">
+                      <label class="hc-form-label text-sm">Timeout (ms)</label>
+                      <input v-model.number="timeoutMs" type="number" min="0" class="hc-input" />
+                    </div>
+                    <button @click="readN" class="hc-button hc-btn-secondary px-4 py-2">Leer</button>
+                  </div>
+                  <p v-if="store.live.error" class="hc-error-text mt-2">{{ store.live.error }}</p>
                 </div>
 
-                <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white/70 dark:bg-gray-900/60 shadow-sm">
-                  <h3 class="font-medium mb-2">Crear mensaje</h3>
-                  <div class="flex items-center gap-2 mb-2">
-                    <label class="text-sm text-gray-600 dark:text-gray-300">Content-Type</label>
-                    <select v-model="contentType" class="px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-900/60">
+                <div class="hc-card card-muted">
+                  <div class="flex items-center justify-between mb-3">
+                    <p class="hc-form-label mb-0">Crear mensaje</p>
+                    <select v-model="contentType" class="hc-input w-48">
                       <option>application/json</option>
                       <option>text/plain</option>
                     </select>
-                    <button @click="sendMessage" :disabled="sending" class="ml-auto px-3 py-1 rounded bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm">Enviar</button>
                   </div>
-                  <textarea v-model="newMessage" rows="6" spellcheck="false" class="w-full font-mono text-sm px-2 py-2 rounded border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-900/60"></textarea>
-                  <p class="text-xs text-gray-500 mt-1">Se envía como una sola línea (JSONL). Si usas <em>application/json</em>, se añade un <code>\n</code> al final.</p>
+                  <textarea v-model="newMessage" rows="8" spellcheck="false" class="hc-input mono text-sm"></textarea>
+                  <div class="flex items-center gap-3 justify-between">
+                    <p class="hc-helper-text">Se envía como JSONL. Si usas JSON, añadimos un \\n automático.</p>
+                    <button @click="sendMessage" :disabled="sending" class="hc-button hc-btn-primary px-4 py-2">Enviar</button>
+                  </div>
                 </div>
 
-                <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white/70 dark:bg-gray-900/60 shadow-sm">
-                  <h3 class="font-medium mb-2">cURL (stream)</h3>
-                  <pre class="text-xs bg-black text-white p-3 rounded-lg overflow-auto"><code>{{ curlCmd }}</code></pre>
+                <div class="hc-card card-muted">
+                  <p class="hc-form-label mb-2">cURL (stream)</p>
+                  <pre class="code-block text-xs p-4 overflow-auto mono"><code>{{ curlCmd }}</code></pre>
                 </div>
               </section>
 
               <!-- Messages -->
               <section class="col-span-1 lg:col-span-2 flex flex-col min-h-0">
-                <div class="flex items-center justify-between mb-2">
-                  <h3 class="font-medium">Mensajes recibidos</h3>
-                  <span class="text-xs text-gray-500">{{ store.live.lines.length }} elementos</span>
-                </div>
-                <div class="flex-1 overflow-auto rounded-xl border border-gray-200 dark:border-gray-800 bg-white/70 dark:bg-gray-900/60">
-                  <ul class="divide-y divide-gray-200 dark:divide-gray-800">
-                    <li v-for="(m, i) in store.live.lines" :key="i" class="p-3">
-                      <pre class="text-xs font-mono whitespace-pre-wrap">{{ JSON.stringify(m, null, 2) }}</pre>
-                    </li>
-                    <li v-if="!store.live.lines.length" class="p-6 text-sm text-gray-500">Sin datos aún. Empieza una lectura o activa LIVE.</li>
-                  </ul>
+                <div class="hc-card card-muted flex flex-col min-h-0">
+                  <div class="flex items-center justify-between mb-3">
+                    <div>
+                      <p class="hc-form-label mb-0">Mensajes recibidos</p>
+                      <p class="hc-helper-text">{{ store.live.lines.length }} elementos</p>
+                    </div>
+                    <span class="pill">LIVE {{ store.live.running ? 'ON' : 'OFF' }}</span>
+                  </div>
+                  <div class="flex-1 overflow-auto rounded-xl border border-[color:var(--color-border-subtle)] bg-[color:var(--color-surface)]">
+                    <ul class="divide-y divide-[color:var(--color-border-subtle)]">
+                      <li v-for="(m, i) in store.live.lines" :key="i" class="p-3">
+                        <pre class="text-xs mono whitespace-pre-wrap">{{ JSON.stringify(m, null, 2) }}</pre>
+                      </li>
+                      <li v-if="!store.live.lines.length" class="p-6 text-sm text-[color:var(--color-text-muted)]">Sin datos aún. Empieza una lectura o activa LIVE.</li>
+                    </ul>
+                  </div>
                 </div>
               </section>
             </div>
@@ -457,18 +585,17 @@
 				})
 				return { store }
 			},
-			template: `
-          <div class="h-screen w-screen grid grid-cols-[320px_minmax(0,1fr)] bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
-            <div class="border-r border-gray-200 dark:border-gray-800 bg-white/60 dark:bg-gray-900/60 backdrop-blur">
-              <div class="px-4 py-3 text-lg font-semibold tracking-tight border-b border-gray-200 dark:border-gray-800">Tailon Console</div>
+                        template: `
+          <div class="min-h-screen bg-transparent text-[color:var(--color-text-strong)] p-4 lg:p-8">
+            <div class="app-shell grid grid-cols-1 lg:grid-cols-[360px_minmax(0,1fr)]">
               <Sidebar />
+              <main class="min-h-0 bg-[color:var(--color-background)]">
+                <router-view />
+              </main>
             </div>
-            <main class="min-h-0">
-              <router-view />
-            </main>
           </div>
         `
-		}
+                }
 
 		createApp(App).use(router).mount('#app')
 	</script>
