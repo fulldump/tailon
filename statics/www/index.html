@@ -1,26 +1,313 @@
 <!doctype html>
 <html lang="es">
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>Tailon Console</title>
-	<!-- Tailwind (CDN build) -->
-	<script src="https://cdn.tailwindcss.com"></script>
-	<script>
-		// minimal dark palette tweaks
-		tailwind.config = {
-			theme: {
-				extend: {
-					colors: {
-						brand: {
-							50: '#eef2ff', 100: '#e0e7ff', 600: '#4f46e5', 700: '#4338ca',
-						},
-					},
-				},
-			},
-			darkMode: 'media',
-		}
-	</script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tailon Console</title>
+<!-- Tailwind (CDN build) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+// minimal dark palette tweaks
+tailwind.config = {
+theme: {
+extend: {
+colors: {
+brand: {
+50: '#eef2ff', 100: '#e0e7ff', 600: '#4f46e5', 700: '#4338ca',
+},
+},
+},
+},
+darkMode: 'media',
+}
+</script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" />
+<link rel="stylesheet" href="./ds/styles.css" />
+<style>
+:root {
+--app-sidebar-width: 330px;
+}
+
+body {
+min-height: 100vh;
+background: radial-gradient(120% 120% at 10% 0%, rgba(86, 102, 245, 0.12), transparent 45%),
+linear-gradient(180deg, rgba(255, 122, 89, 0.06) 0%, transparent 35%),
+var(--color-background);
+}
+
+.app-shell {
+min-height: 100vh;
+display: grid;
+grid-template-columns: var(--app-sidebar-width) minmax(0, 1fr);
+background: radial-gradient(80% 120% at 120% 0%, rgba(86, 102, 245, 0.1), transparent 50%),
+var(--color-background);
+}
+
+@media (max-width: 1024px) {
+.app-shell {
+grid-template-columns: 1fr;
+}
+}
+
+.app-sidebar {
+background: linear-gradient(165deg, rgba(86, 102, 245, 0.16), rgba(86, 102, 245, 0.04)),
+var(--color-surface);
+border-right: 1px solid var(--color-border-subtle);
+padding: 1.5rem 1.25rem 1.25rem;
+display: flex;
+flex-direction: column;
+gap: 1rem;
+}
+
+@media (max-width: 1024px) {
+.app-sidebar {
+border-right: none;
+border-bottom: 1px solid var(--color-border-subtle);
+}
+}
+
+.app-brand {
+display: flex;
+align-items: center;
+gap: 0.75rem;
+}
+
+.app-brand__icon {
+width: 46px;
+height: 46px;
+border-radius: 16px;
+display: grid;
+place-items: center;
+font-weight: 800;
+color: #fff;
+background: linear-gradient(135deg, var(--color-brand-500), var(--color-brand-700));
+box-shadow: var(--shadow-md);
+}
+
+.app-brand__title {
+margin: 0;
+font-weight: 700;
+letter-spacing: -0.01em;
+}
+
+.app-brand__subtitle {
+margin: 0;
+color: var(--color-text-muted);
+font-size: 0.95rem;
+}
+
+.app-card {
+background: var(--color-surface);
+border: 1px solid var(--color-border-subtle);
+border-radius: var(--radius-lg);
+box-shadow: var(--shadow-sm);
+padding: 1rem 1.15rem;
+display: flex;
+flex-direction: column;
+gap: 0.8rem;
+}
+
+.app-card__title {
+font-weight: 600;
+}
+
+.app-description {
+color: var(--color-text-muted);
+font-size: 0.95rem;
+margin: 0;
+}
+
+.app-section__header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+text-transform: uppercase;
+letter-spacing: 0.08em;
+font-size: 0.82rem;
+color: var(--color-text-muted);
+}
+
+.settings-grid {
+display: grid;
+grid-template-columns: 1fr;
+gap: 0.75rem;
+}
+
+@media (min-width: 760px) {
+.settings-grid.settings-grid--split {
+grid-template-columns: 1.1fr 0.9fr;
+}
+}
+
+.queue-list {
+display: flex;
+flex-direction: column;
+gap: 0.35rem;
+}
+
+.queue-item {
+display: flex;
+align-items: center;
+gap: 0.65rem;
+padding: 0.65rem 0.75rem;
+border-radius: var(--radius-md);
+border: 1px solid transparent;
+cursor: pointer;
+transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.queue-item:hover {
+background-color: var(--color-surface-muted);
+border-color: var(--color-border-subtle);
+}
+
+.queue-item.is-active {
+border-color: rgba(86, 102, 245, 0.4);
+background-color: rgba(86, 102, 245, 0.12);
+box-shadow: var(--shadow-sm);
+}
+
+.queue-item__name {
+flex: 1;
+min-width: 0;
+font-weight: 600;
+}
+
+.queue-item__actions {
+display: flex;
+gap: 0.4rem;
+}
+
+.app-footer {
+color: var(--color-text-muted);
+font-size: 0.85rem;
+padding-top: 0.75rem;
+border-top: 1px solid var(--color-border-subtle);
+}
+
+.app-main {
+padding: 1.5rem;
+}
+
+.app-main__inner {
+max-width: 1200px;
+margin: 0 auto;
+display: flex;
+flex-direction: column;
+gap: 1.25rem;
+}
+
+.app-hero {
+background: linear-gradient(135deg, rgba(86, 102, 245, 0.16), rgba(255, 122, 89, 0.12));
+border: 1px solid var(--color-border-subtle);
+border-radius: var(--radius-lg);
+padding: 1.2rem 1.4rem;
+box-shadow: var(--shadow-md);
+display: flex;
+flex-wrap: wrap;
+align-items: center;
+justify-content: space-between;
+gap: 0.75rem;
+}
+
+.app-hero__meta {
+display: flex;
+align-items: center;
+gap: 0.75rem;
+}
+
+.status-pill {
+display: inline-flex;
+align-items: center;
+gap: 0.35rem;
+padding: 0.35rem 0.7rem;
+border-radius: 999px;
+background: rgba(86, 102, 245, 0.12);
+color: var(--color-brand-700);
+font-weight: 700;
+font-size: 0.95rem;
+}
+
+.status-pill.is-live {
+background: rgba(22, 163, 74, 0.16);
+color: var(--color-success);
+}
+
+.small-label {
+text-transform: uppercase;
+letter-spacing: 0.08em;
+font-size: 0.82rem;
+color: var(--color-text-muted);
+}
+
+.panel-grid {
+display: grid;
+grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+gap: 1rem;
+align-items: start;
+}
+
+@media (max-width: 1100px) {
+.panel-grid {
+grid-template-columns: 1fr;
+}
+}
+
+.card-muted {
+background: var(--color-surface);
+border: 1px solid var(--color-border-subtle);
+border-radius: var(--radius-lg);
+padding: 1.1rem 1.15rem;
+box-shadow: var(--shadow-sm);
+display: flex;
+flex-direction: column;
+gap: 0.75rem;
+}
+
+.code-block {
+background: #0b1220;
+color: var(--color-text-inverse);
+border-radius: var(--radius-md);
+padding: 1rem 1.05rem;
+font-size: 0.9rem;
+box-shadow: var(--shadow-sm);
+}
+
+.message-board {
+border: 1px solid var(--color-border-subtle);
+border-radius: var(--radius-lg);
+background: var(--color-surface);
+box-shadow: var(--shadow-sm);
+display: flex;
+flex-direction: column;
+min-height: 420px;
+}
+
+.message-board__meta {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0.95rem 1.05rem;
+border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.message-board__list {
+list-style: none;
+margin: 0;
+padding: 0;
+max-height: 520px;
+overflow: auto;
+}
+
+.message-board__list li {
+padding: 0.9rem 1.05rem;
+border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.message-board__list pre {
+margin: 0;
+}
+</style>
 	<!-- Vue 3 + Router (ESM via CDN) -->
 	<!-- Import Map to resolve bare specifiers -->
 	<script type="importmap">
@@ -187,28 +474,39 @@
 				}
 				function testAuth() {
 					httpGet('/me').then(() => alert('Auth OK /me')).catch(e => alert('Auth fallo: ' + e.message))
-				}
-				return { url, headerName, headerValue, save, testAuth }
-			},
-			template: `
-          <div class="p-3 border-b border-gray-200 dark:border-gray-800">
-            <div class="flex flex-col gap-2">
-              <div class="flex gap-2 items-center">
-                <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Base URL</span>
-                <input v-model="url" class="w-full px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-900/60 focus:outline-none" placeholder="https://tailon.hola.cloud" />
-                <button @click="save" class="px-3 py-1 rounded bg-brand-600 hover:bg-brand-700 text-white text-sm">Guardar</button>
+                        }
+                        return { url, headerName, headerValue, save, testAuth }
+                },
+                template: `
+          <div class="app-card">
+            <div class="space-y-1">
+              <p class="small-label">Conexión API</p>
+              <div class="app-card__title">Base URL y headers</div>
+              <p class="app-description">Define el endpoint de Tailon y los headers opcionales que deban acompañar cada petición.</p>
+            </div>
+            <div class="settings-grid">
+              <div class="flex flex-col gap-2">
+                <label class="hc-form-label">Base URL</label>
+                <input v-model="url" class="hc-input" placeholder="https://tailon.hola.cloud" />
               </div>
-              <div class="flex gap-2 items-center">
-                <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Header</span>
-                <input v-model="headerName" class="w-40 px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-900/60" placeholder="X-Auth (opcional)" />
-                <input v-model="headerValue" class="w-full px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-900/60" placeholder="Valor del header" />
-                <button @click="save" class="px-3 py-1 rounded bg-gray-900/80 hover:bg-black text-white text-sm">Aplicar</button>
-                <button @click="testAuth" class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-sm">Probar /me</button>
+              <div class="settings-grid settings-grid--split">
+                <div class="flex flex-col gap-2">
+                  <label class="hc-form-label">Header</label>
+                  <input v-model="headerName" class="hc-input" placeholder="X-Auth (opcional)" />
+                </div>
+                <div class="flex flex-col gap-2">
+                  <label class="hc-form-label">Valor</label>
+                  <input v-model="headerValue" class="hc-input" placeholder="Token o API key" />
+                </div>
               </div>
+            </div>
+            <div class="flex flex-wrap gap-2 justify-end">
+              <button @click="save" class="hc-button hc-btn-secondary px-4 py-2">Guardar</button>
+              <button @click="testAuth" class="hc-button hc-btn-primary px-4 py-2">Probar /me</button>
             </div>
           </div>
         `
-		}
+                }
 
 		const Sidebar = {
 			name: 'Sidebar',
@@ -234,53 +532,96 @@
 					} finally {
 						creating.value = false
 					}
-				}
+                                }
 
-				onMounted(listQueues)
+                                onMounted(listQueues)
 
-				return { store, newQueue, creating, listQueues, create, select }
-			},
-			template: `
-          <aside class="flex flex-col h-full">
-            <SettingsBar />
-            <div class="p-3 border-b border-gray-200 dark:border-gray-800">
-              <div class="flex gap-2">
-                <input v-model="newQueue" placeholder="Nombre de la cola" class="flex-1 px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-900/60" />
-                <button @click="create" :disabled="creating" class="px-3 py-1 rounded bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white">Nueva</button>
+                                return { store, newQueue, creating, listQueues, create, select, deleteQueue }
+                        },
+                        template: `
+          <aside class="app-sidebar">
+            <div class="app-brand">
+              <div class="app-brand__icon">HC</div>
+              <div>
+                <p class="app-brand__title">Tailon Console</p>
+                <p class="app-brand__subtitle">Administra colas y eventos</p>
               </div>
             </div>
-            <div class="flex items-center justify-between px-3 py-2 text-xs text-gray-500">
-              <span>Colas</span>
-              <button @click="listQueues" class="px-2 py-1 rounded bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700">Refrescar</button>
+
+            <SettingsBar />
+
+            <div class="app-card">
+              <div>
+                <div class="app-card__title">Nueva cola</div>
+                <p class="app-description">Organiza los mensajes en colas independientes.</p>
+              </div>
+              <div class="settings-grid settings-grid--split">
+                <div class="flex flex-col gap-2">
+                  <label class="hc-form-label">Nombre</label>
+                  <input v-model="newQueue" placeholder="Nombre de la cola" class="hc-input" />
+                </div>
+                <div class="flex flex-col gap-2 justify-end">
+                  <button @click="create" :disabled="creating" class="hc-button hc-btn-primary w-full py-2">Nueva cola</button>
+                </div>
+              </div>
             </div>
-            <nav class="flex-1 overflow-auto">
-              <ul>
-                <li v-if="store.loadingQueues" class="px-3 py-2 text-sm text-gray-500">Cargando…</li>
-                <li v-else-if="!store.queues.length" class="px-3 py-2 text-sm text-gray-500">No hay colas aún.</li>
-                <li v-for="q in store.queues" :key="q">
-                  <div class="flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer" :class="{ 'bg-gray-100 dark:bg-gray-800': store.selectedQueue === q }" @click="select(q)">
-                    <span class="truncate">{{ q }}</span>
-                    <button title="Eliminar" @click.stop="deleteQueue(q).catch(e=>alert('Error al eliminar: '+e.message))" class="text-xs px-2 py-0.5 rounded bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-300">×</button>
+
+            <div class="app-card">
+              <div class="app-section__header">
+                <span>Colas</span>
+                <button @click="listQueues" class="hc-button hc-btn-subtle px-3 py-2 text-sm">Refrescar</button>
+              </div>
+              <p class="app-description">Explora y gestiona las colas activas.</p>
+              <div class="queue-list">
+                <div v-if="store.loadingQueues" class="app-description">Cargando…</div>
+                <div v-else-if="!store.queues.length" class="app-description">No hay colas aún.</div>
+                <div v-for="q in store.queues" :key="q" class="queue-item" :class="{ 'is-active': store.selectedQueue === q }" @click="select(q)">
+                  <span class="queue-item__name truncate">{{ q }}</span>
+                  <div class="queue-item__actions">
+                    <button title="Eliminar" @click.stop="deleteQueue(q).catch(e=>alert('Error al eliminar: '+e.message))" class="hc-button hc-btn-subtle text-xs px-2 py-1">×</button>
                   </div>
-                </li>
-              </ul>
-            </nav>
-            <footer class="p-3 text-[10px] text-gray-500 border-t border-gray-200 dark:border-gray-800">
-              Tailon Console — Vue 3 + Tailwind
+                </div>
+              </div>
+            </div>
+
+            <footer class="app-footer">
+              Tailon Console — Hola Cloud
             </footer>
           </aside>
         `
-		}
+                }
 
-		const Home = {
-			name: 'Home',
-			template: `
-          <div class="p-6">
-            <h1 class="text-xl font-semibold mb-2">Bienvenido</h1>
-            <p class="text-gray-600 dark:text-gray-300">Selecciona una cola en el panel lateral o crea una nueva para empezar.</p>
+                const Home = {
+                        name: 'Home',
+                        template: `
+          <div class="app-main__inner">
+            <div class="app-hero">
+              <div>
+                <p class="small-label">Hola Cloud · Tailon</p>
+                <h1 class="hc-heading-3">Bienvenido a la consola de colas</h1>
+                <p class="app-description">Selecciona una cola en el panel lateral o crea una nueva para empezar a leer y enviar mensajes JSON.</p>
+              </div>
+              <div class="flex gap-2">
+                <div class="status-pill">Listo para conectar</div>
+              </div>
+            </div>
+            <div class="panel-grid">
+              <div class="card-muted">
+                <p class="small-label">Primeros pasos</p>
+                <div class="app-card__title">Configura la URL del API</div>
+                <p class="app-description">Asegúrate de que la consola apunta al endpoint correcto y añade headers de autenticación si son necesarios.</p>
+                <p class="hc-helper-text">La configuración se almacena en tu navegador para reutilizarla en sesiones futuras.</p>
+              </div>
+              <div class="card-muted">
+                <p class="small-label">Crea tu primera cola</p>
+                <div class="app-card__title">Organiza los mensajes</div>
+                <p class="app-description">Lanza una cola nueva desde el panel lateral para agrupar eventos y empezar a consumirlos en streaming.</p>
+                <p class="hc-helper-text">Puedes refrescar la lista de colas en cualquier momento.</p>
+              </div>
+            </div>
           </div>
         `
-		}
+                }
 
 		const QueueView = {
 			name: 'QueueView',
@@ -355,83 +696,100 @@
 					resetBuffer()
 				}, { immediate: true })
 
-				const curlCmd = computed(() => {
-					const url = `${store.baseUrl}/v1/queues/${encodeURIComponent(queueId.value)}:read`
-					const header = (store.extraHeaderName && store.extraHeaderValue) ? ` -H "${store.extraHeaderName}: ${store.extraHeaderValue}"` : ''
-					return `curl -N -s${header} "${url}"`
-				})
+                                const curlCmd = computed(() => {
+                                        const url = `${store.baseUrl}/v1/queues/${encodeURIComponent(queueId.value)}:read`
+                                        const header = (store.extraHeaderName && store.extraHeaderValue) ? ` -H "${store.extraHeaderName}: ${store.extraHeaderValue}"` : ''
+                                        return `curl -N -s${header} "${url}"`
+                                })
 
-				return { store, queueId, n, timeoutMs, newMessage, contentType, readN, toggleLive, sendMessage, curlCmd, resetBuffer }
-			},
-			template: `
-          <div class="h-full flex flex-col">
-            <div class="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                                return { store, queueId, n, timeoutMs, newMessage, contentType, readN, toggleLive, sendMessage, curlCmd, resetBuffer }
+                        },
+                        template: `
+          <div class="app-main__inner">
+            <div class="app-hero">
               <div>
-                <h2 class="text-lg font-semibold">Cola: <span class="font-mono">{{ queueId }}</span></h2>
-                <p class="text-sm text-gray-500">Lectura en streaming (JSON Lines) y envío de mensajes.</p>
+                <p class="small-label">Cola activa</p>
+                <h2 class="hc-heading-3">Cola: <span class="hc-mono">{{ queueId }}</span></h2>
+                <p class="app-description">Lectura en streaming (JSON Lines) y envío de mensajes.</p>
               </div>
-              <div class="flex gap-2">
-                <button @click="resetBuffer" class="px-3 py-1 text-sm rounded bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700">Limpiar</button>
-                <button @click="toggleLive" :class="store.live.running ? 'bg-red-600 hover:bg-red-700' : 'bg-brand-600 hover:bg-brand-700'" class="px-3 py-1 text-sm rounded text-white">
+              <div class="app-hero__meta">
+                <div :class="['status-pill', store.live.running ? 'is-live' : '']">
+                  <span v-if="store.live.running">LIVE activo</span>
+                  <span v-else>En pausa</span>
+                </div>
+                <button @click="resetBuffer" class="hc-button hc-btn-secondary px-4 py-2">Limpiar</button>
+                <button @click="toggleLive" :class="['hc-button', 'px-4', 'py-2', store.live.running ? 'hc-btn-danger' : 'hc-btn-primary']">
                   {{ store.live.running ? 'Parar LIVE' : 'LIVE (seguir)' }}
                 </button>
               </div>
             </div>
 
-            <div class="p-4 grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1 overflow-hidden">
-              <!-- Controls -->
-              <section class="col-span-1 space-y-4">
-                <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white/70 dark:bg-gray-900/60 shadow-sm">
-                  <h3 class="font-medium mb-2">Obtener mensajes</h3>
-                  <div class="flex items-center gap-2 mb-2">
-                    <label class="text-sm text-gray-600 dark:text-gray-300">Siguientes N</label>
-                    <input v-model.number="n" type="number" min="1" class="w-24 px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-900/60" />
-                    <label class="text-sm text-gray-600 dark:text-gray-300 ml-2">Timeout (ms)</label>
-                    <input v-model.number="timeoutMs" type="number" min="0" class="w-28 px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-900/60" />
-                    <button @click="readN" class="ml-auto px-3 py-1 rounded bg-gray-900/80 hover:bg-black text-white text-sm">Leer</button>
+            <div class="panel-grid">
+              <section class="space-y-4">
+                <div class="card-muted">
+                  <p class="small-label">Obtener mensajes</p>
+                  <div class="app-card__title">Lectura puntual</div>
+                  <div class="settings-grid settings-grid--split">
+                    <div class="flex flex-col gap-2">
+                      <label class="hc-form-label">Siguientes N</label>
+                      <input v-model.number="n" type="number" min="1" class="hc-input" />
+                    </div>
+                    <div class="flex flex-col gap-2">
+                      <label class="hc-form-label">Timeout (ms)</label>
+                      <input v-model.number="timeoutMs" type="number" min="0" class="hc-input" />
+                    </div>
                   </div>
-                  <p v-if="store.live.error" class="text-xs text-red-600">{{ store.live.error }}</p>
+                  <div class="flex justify-end gap-2 items-center">
+                    <p v-if="store.live.error" class="hc-error-text text-sm">{{ store.live.error }}</p>
+                    <button @click="readN" class="hc-button hc-btn-secondary px-4 py-2">Leer</button>
+                  </div>
                 </div>
 
-                <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white/70 dark:bg-gray-900/60 shadow-sm">
-                  <h3 class="font-medium mb-2">Crear mensaje</h3>
-                  <div class="flex items-center gap-2 mb-2">
-                    <label class="text-sm text-gray-600 dark:text-gray-300">Content-Type</label>
-                    <select v-model="contentType" class="px-2 py-1 rounded border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-900/60">
-                      <option>application/json</option>
-                      <option>text/plain</option>
-                    </select>
-                    <button @click="sendMessage" :disabled="sending" class="ml-auto px-3 py-1 rounded bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm">Enviar</button>
+                <div class="card-muted">
+                  <p class="small-label">Crear mensaje</p>
+                  <div class="app-card__title">Publica en la cola</div>
+                  <div class="settings-grid settings-grid--split">
+                    <div class="flex flex-col gap-2">
+                      <label class="hc-form-label">Content-Type</label>
+                      <select v-model="contentType" class="hc-input">
+                        <option>application/json</option>
+                        <option>text/plain</option>
+                      </select>
+                    </div>
+                    <div class="flex flex-col gap-2 justify-end">
+                      <button @click="sendMessage" :disabled="sending" class="hc-button hc-btn-primary px-4 py-2 w-full">Enviar</button>
+                    </div>
                   </div>
-                  <textarea v-model="newMessage" rows="6" spellcheck="false" class="w-full font-mono text-sm px-2 py-2 rounded border border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-900/60"></textarea>
-                  <p class="text-xs text-gray-500 mt-1">Se envía como una sola línea (JSONL). Si usas <em>application/json</em>, se añade un <code>\n</code> al final.</p>
+                  <textarea v-model="newMessage" rows="6" spellcheck="false" class="hc-input hc-mono" style="min-height: 160px; resize: vertical;"></textarea>
+                  <p class="hc-helper-text">Se envía como una sola línea (JSONL). Si usas <em>application/json</em>, se añade un <code>\n</code> al final.</p>
                 </div>
 
-                <div class="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white/70 dark:bg-gray-900/60 shadow-sm">
-                  <h3 class="font-medium mb-2">cURL (stream)</h3>
-                  <pre class="text-xs bg-black text-white p-3 rounded-lg overflow-auto"><code>{{ curlCmd }}</code></pre>
+                <div class="card-muted">
+                  <p class="small-label">cURL (stream)</p>
+                  <div class="app-card__title">Replica la lectura en terminal</div>
+                  <pre class="code-block overflow-auto"><code>{{ curlCmd }}</code></pre>
                 </div>
               </section>
 
-              <!-- Messages -->
-              <section class="col-span-1 lg:col-span-2 flex flex-col min-h-0">
-                <div class="flex items-center justify-between mb-2">
-                  <h3 class="font-medium">Mensajes recibidos</h3>
-                  <span class="text-xs text-gray-500">{{ store.live.lines.length }} elementos</span>
+              <section class="message-board">
+                <div class="message-board__meta">
+                  <div>
+                    <p class="small-label">Mensajes recibidos</p>
+                    <div class="app-card__title">{{ store.live.lines.length }} elementos</div>
+                  </div>
+                  <div :class="['status-pill', store.live.running ? 'is-live' : '']">Buffer {{ store.live.lines.length }}</div>
                 </div>
-                <div class="flex-1 overflow-auto rounded-xl border border-gray-200 dark:border-gray-800 bg-white/70 dark:bg-gray-900/60">
-                  <ul class="divide-y divide-gray-200 dark:divide-gray-800">
-                    <li v-for="(m, i) in store.live.lines" :key="i" class="p-3">
-                      <pre class="text-xs font-mono whitespace-pre-wrap">{{ JSON.stringify(m, null, 2) }}</pre>
-                    </li>
-                    <li v-if="!store.live.lines.length" class="p-6 text-sm text-gray-500">Sin datos aún. Empieza una lectura o activa LIVE.</li>
-                  </ul>
-                </div>
+                <ul class="message-board__list">
+                  <li v-for="(m, i) in store.live.lines" :key="i">
+                    <pre class="text-sm hc-mono whitespace-pre-wrap">{{ JSON.stringify(m, null, 2) }}</pre>
+                  </li>
+                  <li v-if="!store.live.lines.length" class="app-description text-center py-6">Sin datos aún. Empieza una lectura o activa LIVE.</li>
+                </ul>
               </section>
             </div>
           </div>
         `
-		}
+                }
 
 		// --- Router ---
 		const routes = [
@@ -454,21 +812,18 @@
 							router.replace({ name: 'queue', params: { id: q } })
 						}
 					})
-				})
-				return { store }
-			},
-			template: `
-          <div class="h-screen w-screen grid grid-cols-[320px_minmax(0,1fr)] bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
-            <div class="border-r border-gray-200 dark:border-gray-800 bg-white/60 dark:bg-gray-900/60 backdrop-blur">
-              <div class="px-4 py-3 text-lg font-semibold tracking-tight border-b border-gray-200 dark:border-gray-800">Tailon Console</div>
-              <Sidebar />
-            </div>
-            <main class="min-h-0">
+                                })
+                                return { store }
+                        },
+                        template: `
+          <div class="app-shell">
+            <Sidebar />
+            <main class="app-main">
               <router-view />
             </main>
           </div>
         `
-		}
+                }
 
 		createApp(App).use(router).mount('#app')
 	</script>
